@@ -1,0 +1,16 @@
+### GET request to fetch users
+
+GET http://localhost:5001/api/auth
+
+### POST request to create a new user
+POST http://localhost:5001/api/auth/signup
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com"
+}
+
+### Test Generate QR API
+GET http://localhost:5001/api/qr/08645758-f553-4301-8def-16da7a088768
+Accept: application/json

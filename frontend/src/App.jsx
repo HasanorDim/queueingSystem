@@ -17,6 +17,10 @@ import DepartmentDashboard from "./pages/DepartmentAdmin/DepartmentDashboard";
 //
 import Ticket from "./pages/userpage/Ticket";
 import { Toaster } from "react-hot-toast";
+import ViewTicket from "./components/DepartmentAdmin_Dashboard/MainContent/ViewTicket";
+import Main from "./components/DepartmentAdmin_Dashboard/MainContent/Main";
+import Window from "./components/DepartmentAdmin_Dashboard/MainContent/Window";
+import WindowContent from "./components/DepartmentAdmin_Dashboard/MainContent/WindowContent";
 
 function App() {
   const { authUser, checkAuth } = useAuthStore();
@@ -43,7 +47,20 @@ function App() {
           path="/signup"
           element={!authUser ? <Signup /> : <Navigate to="/dashboard" />}
         />
-        <Route path="/setup-account" element={<SetUpAccount />} />
+        <Route
+          path="/setup-account"
+          element={
+            authUser ? (
+              authUser.is_user_info_set === 0 ? (
+                <SetUpAccount />
+              ) : (
+                <Navigate to="/userpage" />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
         <Route
           path="/ticket"
           // element={authTicket ? <Ticket /> : <Navigate to="/userpage" />}
@@ -52,34 +69,21 @@ function App() {
         <Route path="/UserTicket" element={<UserTicket />} />
 
         {/* Super Admin */}
-        {/* <Route
-          path="/dashboard"
-          element={
-            authUser ? (
-              authUser.role === "superAdmin" ? (
-                <Dashboard />
-              ) : (
-                <Navigate to="/userpage" />
-              )
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        >
-          <Route index element={<SystemOverview />} />
-          <Route path="organization-units" element={<OrganizationUnits />} />
-        </Route> */}
 
         <Route
           path="/dashboard"
           element={
             authUser ? (
-              authUser.role === "superAdmin" ? (
+              authUser.role === "superadmin" ? (
                 <Dashboard />
-              ) : authUser.role === "departmentAdmin" ? (
+              ) : authUser.role === "departmentadmin" ? (
                 <Navigate to="/department-dashboard" />
               ) : authUser.role === "client" ? (
-                <Navigate to="/client-dashboard" />
+                authUser.is_user_info_set === 0 ? (
+                  <Navigate to="/setup-account" />
+                ) : (
+                  <Navigate to="/userpage" />
+                )
               ) : (
                 <Navigate to="/login" />
               )
@@ -94,8 +98,10 @@ function App() {
 
         {/* Department Admin */}
         <Route path="/department-dashboard" element={<DepartmentDashboard />}>
-          {/* <Route index element={<SystemOverview />} />
-          <Route path="organization-units" element={<OrganizationUnits />} /> */}
+          <Route index element={<Main />} />
+          <Route path="ticket-view" element={<ViewTicket />} />
+          <Route path="windows" element={<Window />} />
+          <Route path="windows/:windowId" element={<WindowContent />} />
         </Route>
 
         {/*  */}

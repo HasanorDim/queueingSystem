@@ -1,6 +1,7 @@
 import { Plus, ScanQrCode } from "lucide-react";
 import React, { useEffect } from "react";
 import { useDepartmentStore } from "../../store/useDepartmentStore";
+import CreateUserDepartment from "../SuperAdmin_Dashboard/MainContent/CreateUserDepartment";
 
 const ViewDepartment = ({ modalId, headText }) => {
   const { selectedUser, generateQR } = useDepartmentStore();
@@ -29,6 +30,14 @@ const ViewDepartment = ({ modalId, headText }) => {
           </div>
           <div className="card-body items-center text-center">
             <h2 className="card-title">{headText}</h2>
+            <button
+              className="btn"
+              onClick={() =>
+                document.getElementById("setUserDepartment").showModal()
+              }
+            >
+              Set user Department
+            </button>
           </div>
           <form method="dialog overflow-auto" onSubmit={handleSubmit}>
             <div className="flex flex-1 justify-center items-center">
@@ -145,6 +154,7 @@ const ViewDepartment = ({ modalId, headText }) => {
               )}
             </div>
           </form>
+          <CreateUserDepartment createModal="setUserDepartment" />
         </div>
       </dialog>
     </>

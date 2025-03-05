@@ -8,13 +8,13 @@ const pool = mysql.createPool({
   host: process.env.HOST || "localhost",
   user: process.env.USER || "root",
   password: process.env.PASSWORD || "", // Empty password
-  database: process.env.DATABASE || "DepartmentDB",
+  database: process.env.DATABASE || "QueueingDB",
   waitForConnections: true,
   connectionLimit: 200, // Limit connections to 10
   queueLimit: 0,
 });
 
-console.log("Connected to MySQL Database ✅");
+console.log("Connected to MySQL Database ✅", process.env.DATABASE);
 
 export default pool;
 

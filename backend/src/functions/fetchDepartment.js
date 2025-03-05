@@ -8,7 +8,6 @@ export const fetchDepartment = async (res) => {
           d.id AS department_id, 
           d.name AS department_name, 
           d.description, 
-          d.status,
           d.created_at,
           d.qr_code,
           c.id AS counter_id, 
@@ -26,7 +25,6 @@ export const fetchDepartment = async (res) => {
         department_name,
         description,
         created_at,
-        status,
         counter_id,
         qr_code,
         counter_type,
@@ -40,7 +38,6 @@ export const fetchDepartment = async (res) => {
           name: department_name,
           description,
           created_at,
-          status,
           qr_code,
           counters: [], // Initialize empty array for counters
         };

@@ -33,17 +33,6 @@ export const useDepartmentStore = create((set, get) => ({
       const { departments } = get();
       const response = await axiosInstance.put("/department/edit", data);
 
-      // Update only the edited department in the state
-
-      // const { department, counters } = response.data;
-
-      // Update only the edited department in the state, including counters
-      // set({
-      //   departments: departments.map((dept) =>
-      //     dept.id === department.id ? { ...department, counters } : dept
-      //   ),
-      // });
-
       set({
         departments: departments.map((dept) =>
           dept.id === data.id ? { ...dept, ...response.data } : dept
@@ -158,8 +147,6 @@ export const useDepartmentStore = create((set, get) => ({
         console.error("No service windows returned!");
         return;
       }
-
-      console.log("Service windows before set: ", response.data); // Debugging check
       set({ selectedDepartment: dataId, serviceWindows: response.data });
 
       const { selectedDepartment } = get();
@@ -168,6 +155,25 @@ export const useDepartmentStore = create((set, get) => ({
       console.log("Error in setselected user ", error);
       toast.error(
         error.response?.data?.message || "Failed to get service window"
+      );
+    }
+  },
+
+  setUserDepartment: async (data) => {
+    try {
+      const { selectedUser } = get();
+      console.log("setUserDepartment: ", selectedUser);
+      if (!selectedUser) return;
+      await axiosInstance.post(
+        `/department/set-department-user/${selectedUser.id}`,
+        data
+      );
+      toast.success("Department's user set successfully");
+    } catch (error) {
+      console.log("Error in setUserDepartment", error);
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to set user's setUserDepartment"
       );
     }
   },

@@ -200,3 +200,35 @@ SELECT * FROM window_tickettb
     connection.release();
   }
 };
+
+export const getAllTickets = async (req, res) => {
+  const connection = await pool.getConnection();
+  await connection.beginTransaction();
+  try {
+    const user = req.user;
+
+    const queryUser = `SELECT department_id FROM users WHERE id = ?`;
+    const [rowsUser] = await connection.execute(queryUser, [user.id]);
+
+    const query = `
+      SELECT wt.*, sw.*
+      FROM window_tickettb wt
+      LEFT JOIN service_windowtb sw ON sw.id = wt.window_id
+      WHERE sw.department_id = ?;
+    `;
+    const [rows] = await connection.execute(query, [rowsUser[0].department_id]);
+
+    const counter = `SELECT * FROM service_windowtb WHERE department_id = ?`;
+    const [windows] = await connection.execute(counter, [
+      rowsUser[0].department_id,
+    ]);
+
+    return res.status(200).json({ rows, windows });
+  } catch (error) {
+    await connection.rollback();
+    console.log("Error in get all tickets ", error);
+    return res.status(500).json({ message: "Server error" });
+  } finally {
+    connection.release();
+  }
+};

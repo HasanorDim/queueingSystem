@@ -1,6 +1,7 @@
 import pool from "../config/db.js";
 import { v4 as uuidv4 } from "uuid"; // For generating UUIDs
 import { fetchDepartment } from "../functions/fetchDepartment.js";
+import bcrypt from "bcryptjs";
 
 export const getWindow = async (req, res) => {
   const { departmentId } = req.params;
@@ -65,15 +66,10 @@ export const addDepartment = async (req, res) => {
 
     // Step 2: Insert the department with the pre-generated UUID
     const insertQuery = `
-      INSERT INTO departments (id, name, description, status)
-      VALUES (?, ?, ?, ?)
+      INSERT INTO departments (id, name, description)
+      VALUES (?, ?, ?)
     `;
-    await connection.execute(insertQuery, [
-      departmentId,
-      name,
-      description,
-      status,
-    ]);
+    await connection.execute(insertQuery, [departmentId, name, description]);
 
     counters.map(async (item, index) => {
       const insertsql = `INSERT INTO service_windowtb (id, department_id, service_type, window_number)
@@ -279,6 +275,59 @@ export const deleteDepartment = async (req, res) => {
 
     await connection.commit();
     return res.status(204).json(); //204 means "No Content"
+  } catch (error) {
+    await connection.rollback();
+    console.log("Error in delete Department", error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error in fetching department" });
+  } finally {
+    connection.release();
+  }
+};
+
+export const setDepartmentUser = async (req, res) => {
+  const { email, password, confirmpass } = req.body;
+  const { departmentId } = req.params;
+
+  if (!email || !password || !confirmpass)
+    return res.status(400).json({ message: "All fields are required" });
+
+  if (password !== confirmpass)
+    return res.status(400).json({ message: "Passwords do not match" });
+
+  if (password.length < 6)
+    return res
+      .status(400)
+      .json({ message: "Password must be at least 6 characters" });
+
+  const connection = await pool.getConnection();
+  try {
+    const id = uuidv4();
+
+    const trimmedPassword = password.trim();
+
+    // Hash the password before storing
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(trimmedPassword, salt);
+
+    const [existingUser] = await connection.execute(
+      "SELECT id, password FROM users WHERE email = ?",
+      [email]
+    );
+
+    if (existingUser.length > 0) {
+      return { success: false, message: "Email already exists" };
+    }
+
+    // Insert user into MySQL database
+    await connection.execute(
+      "INSERT INTO users (id, email, password, role, department_id) VALUES (?, ?, ?, ?, ?)",
+      [id, email, hashedPassword, "departmentadmin", departmentId]
+    );
+
+    // await connection.commit();
+    return res.status(201).json(); //204 means "No Content"
   } catch (error) {
     await connection.rollback();
     console.log("Error in delete Department", error);

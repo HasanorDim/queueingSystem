@@ -5,7 +5,14 @@ import { setTokenOnCookie } from "../lib/util.js";
 
 // const secretKey = process.env.JWT_SECRET || "your_secret_key";
 
-export const authUserID = async (email, password, firstname, lastname, res) => {
+export const authUserID = async (
+  id,
+  email,
+  password,
+  firstname,
+  lastname,
+  res
+) => {
   try {
     const connection = await pool.getConnection();
 
@@ -28,12 +35,12 @@ export const authUserID = async (email, password, firstname, lastname, res) => {
 
     // Insert user into MySQL database
     await connection.execute(
-      "INSERT INTO users (firstname, lastname, email, password) VALUES (?, ?, ?, ?)",
-      [firstname, lastname, email, hashedPassword]
+      "INSERT INTO users (id, firstname, lastname, email, password) VALUES (?, ?, ?, ?, ?)",
+      [id, firstname, lastname, email, hashedPassword]
     );
 
-    const [user] = await pool.execute("SELECT id FROM users WHERE email = ?", [
-      email,
+    const [user] = await pool.execute("SELECT id FROM users WHERE id = ?", [
+      id,
     ]);
 
     connection.release();

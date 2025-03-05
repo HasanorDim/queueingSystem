@@ -9,6 +9,7 @@ import generateQR from "./routes/generate.route.js";
 import department from "./routes/department.js";
 import ticket from "./routes/ticket.js";
 import users from "./routes/user.js";
+import window from "./routes/window.js";
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.use("/api/qr", generateQR);
 app.use("/api/department", department);
 app.use("/api/ticket", ticket);
 app.use("/api/user", users);
+app.use("/api/window", window);
 
 app.listen(PORT, () => {
   console.log(`This Server is running on http://localhost:${PORT}`);

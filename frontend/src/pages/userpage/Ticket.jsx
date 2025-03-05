@@ -3,13 +3,13 @@ import { useTicketStore } from "../../store/useTicketStore";
 import { useDepartmentStore } from "../../store/useDepartmentStore";
 import { useNavigate } from "react-router-dom";
 import Window from "../../components/usermodal/Window";
+import toast from "react-hot-toast";
 
 const Ticket = () => {
   const navigate = useNavigate();
 
   const { addTicket, queue_num, getNewestNumber } = useTicketStore();
-  const { selectedDepartment, setSelectedDepartment, serviceWindows } =
-    useDepartmentStore();
+  const { serviceWindows } = useDepartmentStore();
 
   const [isModalOpen, setIsModalOpen] = useState(true); // Show modal initially
   const [formData, setFormData] = useState({
@@ -30,8 +30,6 @@ const Ticket = () => {
         ? serviceWindows.window[0].id
         : ""
     );
-
-    console.log("serviceWindows: ", serviceWindows);
   }, [getNewestNumber, serviceWindows]);
 
   const handleSelectWindow = (window) => {
@@ -63,7 +61,7 @@ const Ticket = () => {
       navigate("/UserTicket");
     } catch (error) {
       console.error("Error adding ticket:", error);
-      alert("Failed to add ticket. Please try again.");
+      toast.error("Failed to add ticket. Please try again.");
     }
   };
 

@@ -7,6 +7,7 @@ import {
   editDepartment,
   getDepartment,
   getWindow,
+  setDepartmentUser,
 } from "../controller/department.js";
 
 const router = express.Router();
@@ -20,6 +21,7 @@ router.get("/:departmentId", getDepartment);
 
 router.post("/add", addDepartment);
 router.put("/edit", editDepartment);
+router.post("/set-department-user/:departmentId", setDepartmentUser);
 
 router.delete("/delete/:departmentId", deleteDepartment);
 

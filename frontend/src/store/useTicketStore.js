@@ -8,6 +8,8 @@ export const useTicketStore = create((set, get) => ({
   isTicketLoading: false,
   queue_num: null,
   totalTickets: 0,
+  allTickets: null,
+
   // ticketUpdated: [],
 
   // setTicketAuth: async (departmentId) => {
@@ -95,6 +97,21 @@ export const useTicketStore = create((set, get) => ({
     try {
       const response = await axiosInstance.get("/ticket/all-tickets");
       set({ totalTickets: response.data });
+    } catch (error) {
+      console.log("Error in getTotalTicket", error);
+      toast.error(error.response.data.message || "Failed to get total ticket");
+    }
+  },
+
+  // Department Admin
+  getAllTickets: async () => {
+    try {
+      const response = await axiosInstance.get("/ticket/department-tickets");
+      // console.log("allTickets: ", response.data);
+      //       console.log("allTickets ROWS: ", response.data.rows);
+      //       let ticketsData = {};
+      // ticketsData.push
+      set({ allTickets: response.data });
     } catch (error) {
       console.log("Error in getTotalTicket", error);
       toast.error(error.response.data.message || "Failed to get total ticket");

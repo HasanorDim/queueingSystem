@@ -1,6 +1,7 @@
 import express from "express";
 import {
   checkAuth,
+  getAllTickets,
   newestNumber,
   requestTicket,
   setAuth,
@@ -22,6 +23,7 @@ router.get("/user", protectUserTicketRoute, userTicket);
 router.get("/setAuth/:departmentId", setAuth);
 router.get("/newestNumber/:windowId", newestNumber);
 router.get("/all-tickets", totalTickets);
+router.get("/department-tickets", protectRoute, getAllTickets);
 
 router.post("/add", protectRoute, requestTicket);
 

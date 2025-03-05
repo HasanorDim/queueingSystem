@@ -2,11 +2,19 @@ import React, { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 
 const SetUpAccount = () => {
-  const { signup } = useAuthStore();
-  const [formData, setFormData] = useState;
+  const { signup, setUSerInfo } = useAuthStore();
+  const [formData, setFormData] = useState({
+    phoneNumber: "",
+    houseNumber: "",
+    barangay: "",
+    city: "",
+    street: "",
+    province: "",
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setUSerInfo(formData);
   };
 
   return (
@@ -32,38 +40,6 @@ const SetUpAccount = () => {
 
               {/* Form */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-10 text-sm">
-                {/* First Input */}
-                <div>
-                  <label className="block text-black ">First Name</label>
-                  <input
-                    type="text"
-                    placeholder="Enter first name"
-                    className="w-full rounded-lg border border-gray-300 bg-transparent py-2 px-4 text-black outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 "
-                  />
-                </div>
-
-                {/* Second Input */}
-                <div>
-                  <label className="block font-medium text-black ">
-                    Last Name
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Enter last name"
-                    className="w-full rounded-lg border border-gray-300 bg-transparent py-2 px-4 text-black outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 "
-                  />
-                </div>
-
-                {/* Third Input */}
-                <div>
-                  <label className="block font-medium text-black ">Email</label>
-                  <input
-                    type="email"
-                    placeholder="Enter email"
-                    className="w-full rounded-lg border border-gray-300 bg-transparent py-2 px-4 text-black outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 "
-                  />
-                </div>
-
                 {/* Fourth Input */}
                 <div>
                   <label className="block font-medium text-black ">
@@ -73,6 +49,10 @@ const SetUpAccount = () => {
                     type="tel"
                     placeholder="Enter phone number"
                     className="w-full rounded-lg border border-gray-300 bg-transparent py-2 px-4 text-black outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 "
+                    value={formData.phoneNumber}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phoneNumber: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -94,6 +74,10 @@ const SetUpAccount = () => {
                     type="text"
                     placeholder="Enter first name"
                     className="w-full rounded-lg border border-gray-300 bg-transparent py-2 px-4 text-black outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 "
+                    value={formData.houseNumber}
+                    onChange={(e) =>
+                      setFormData({ ...formData, houseNumber: e.target.value })
+                    }
                   />
                 </div>
 
@@ -106,6 +90,10 @@ const SetUpAccount = () => {
                     type="text"
                     placeholder="Enter last name"
                     className="w-full rounded-lg border border-gray-300 bg-transparent py-2 px-4 text-black outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 "
+                    value={formData.street}
+                    onChange={(e) =>
+                      setFormData({ ...formData, street: e.target.value })
+                    }
                   />
                 </div>
 
@@ -118,6 +106,10 @@ const SetUpAccount = () => {
                     type="text"
                     placeholder="Enter email"
                     className="w-full rounded-lg border border-gray-300 bg-transparent py-2 px-4 text-black outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 "
+                    value={formData.barangay}
+                    onChange={(e) =>
+                      setFormData({ ...formData, barangay: e.target.value })
+                    }
                   />
                 </div>
 
@@ -128,6 +120,10 @@ const SetUpAccount = () => {
                     type="tel"
                     placeholder="Enter phone number"
                     className="w-full rounded-lg border border-gray-300 bg-transparent py-2 px-4 text-black outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 "
+                    value={formData.city}
+                    onChange={(e) =>
+                      setFormData({ ...formData, city: e.target.value })
+                    }
                   />
                 </div>
                 {/* Fifth Input */}
@@ -139,6 +135,10 @@ const SetUpAccount = () => {
                     type="text"
                     placeholder="Enter phone number"
                     className="w-full rounded-lg border border-gray-300 bg-transparent py-2 px-4 text-black outline-none focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 "
+                    value={formData.province}
+                    onChange={(e) =>
+                      setFormData({ ...formData, province: e.target.value })
+                    }
                   />
                 </div>
               </div>

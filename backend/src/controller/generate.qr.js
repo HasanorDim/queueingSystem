@@ -20,9 +20,6 @@ export const generateQR = async (req, res) => {
     const selectQuery = "SELECT * FROM departments WHERE id = ?";
     const [rows] = await connection.query(selectQuery, [departmentId]);
 
-    console.log("departmentId", departmentId);
-    console.log("query", rows.qr_code);
-
     await connection.commit();
 
     fetchDepartment(res);

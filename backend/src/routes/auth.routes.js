@@ -4,22 +4,20 @@ import {
   signup,
   logout,
   checkAuth,
+  userInfo,
 } from "../controller/auth.controller.js";
 import { protectRoute } from "../middleware/protectRoute.middleware.js";
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  console.log("Req: ", req.user);
-  return res.status(200).json(req.user);
-});
+router.get("/check", protectRoute, checkAuth);
+
 router.post("/login", login);
 
 router.post("/signup", signup);
 
 router.post("/logout", logout);
-
-router.get("/check", protectRoute, checkAuth);
+router.post("/set-info", protectRoute, userInfo);
 
 // router.post()
 

@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useTicketStore } from "../../../store/useTicketStore";
 import { useWindowStore } from "../../../store/useWindowStore";
+import { Navigate } from "react-router-dom";
 
 const QueueUser = () => {
   const { getAllTickets } = useTicketStore();
@@ -40,11 +41,11 @@ const QueueUser = () => {
   return (
     <div className="">
       {/* Sticky Header */}
-      <h2 className="text-2xl font-bold text-center bg-white text-gray-800 ">
-        Queue Users
-      </h2>
-      <div className="max-w-lg mx-auto bg-white p-6 rounded-2xl shadow-2xl h-[400px] overflow-y-auto space-y-10 pb-5">
+      <div className="max-w-lg mx-auto bg-white px-5 rounded-2xl shadow-2xl h-[400px] overflow-y-auto space-y-10 pb-5">
         {/* Scrollable List */}
+        <h2 className="text-2xl font-bold text-center bg-pink-400 rounded-md  text-gray-800 sticky top-0 z-10 pb-4">
+          Queue Users
+        </h2>
         <div className="relative max-h-[400px] w-full">
           <hr className="bg-gray-300" />
           {windowTicket?.length > 0 ? (

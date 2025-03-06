@@ -49,14 +49,58 @@ const AddDepartment = ({
             </label>
             <div className="max-h-40 overflow-y-auto">
               <ul className="space-y-2">
-                {counters.map((counter) => (
-                  <li
-                    key={counter.id}
-                    className="bg-white p-2 rounded-md border border-slate-200 flex items-center justify-between"
-                  >
-                    <span>{counter.name}</span>
-                  </li>
-                ))}
+                {counters.map((counter) => {
+                  const isCurrentlyEditing = editingCounterId === counter.id;
+                  const counterName = isCurrentlyEditing
+                    ? editedCounterName
+                    : counter.name;
+
+                  return (
+                    <li
+                      key={counter.id}
+                      className="bg-white p-2 rounded-md border border-slate-200 flex items-center justify-between"
+                    >
+                      {isCurrentlyEditing ? (
+                        <input
+                          type="text"
+                          value={editedCounterName}
+                          onChange={(e) => setEditedCounterName(e.target.value)}
+                          className="italic w-full bg-transparent text-slate-700 text-sm border border-slate-200 rounded-md px-2 py-1 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
+                        />
+                      ) : (
+                        <span>{counterName}</span>
+                      )}
+                      <div className="flex items-center gap-2">
+                        {isCurrentlyEditing ? (
+                          <button
+                            onClick={() => handleSaveCounter(counter.id)}
+                            className="text-green-600 hover:text-green-700"
+                            type="button"
+                          >
+                            <Save className="w-4 h-4" />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() =>
+                              handleEditCounter(counter.id, counter.name)
+                            }
+                            className="text-blue-600 hover:text-blue-700"
+                            type="button"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDeleteCounter(counter.id)}
+                          className="text-red-600 hover:text-red-700"
+                          type="button"
+                        >
+                          <Trash className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </div>
@@ -91,22 +135,6 @@ const AddDepartment = ({
               placeholder="Department..."
             />
           </div>
-          {/* 
-          <div className="w-full max-w-sm min-w-[200px]">
-            <label className="block mb-2 text-sm text-slate-600">
-              No. of Services
-            </label>
-            <input
-              value={formData.services}
-              onChange={(e) =>
-                setFormData({ ...formData, services: e.target.value })
-              }
-              readOnly
-              type="number"
-              className="italic w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-              placeholder="123..."
-            />
-          </div> */}
 
           <div className="w-full max-w-sm min-w-[200px]">
             <label className="block mb-2 text-sm text-slate-600">Status</label>

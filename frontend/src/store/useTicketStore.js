@@ -9,6 +9,7 @@ export const useTicketStore = create((set, get) => ({
   queue_num: null,
   totalTickets: 0,
   allTickets: null,
+  groupWindows: null,
 
   // ticketUpdated: [],
 
@@ -107,14 +108,40 @@ export const useTicketStore = create((set, get) => ({
   getAllTickets: async () => {
     try {
       const response = await axiosInstance.get("/ticket/department-tickets");
-      // console.log("allTickets: ", response.data);
-      //       console.log("allTickets ROWS: ", response.data.rows);
-      //       let ticketsData = {};
-      // ticketsData.push
       set({ allTickets: response.data });
+
+      const groupedTickets = response.data.rows.reduce((acc, ticket) => {
+        if (!acc[ticket.window_id]) {
+          acc[ticket.window_id] = [];
+        }
+        acc[ticket.window_id].push(ticket);
+        return acc;
+      }, {});
+
+      set({ groupWindows: groupedTickets });
     } catch (error) {
       console.log("Error in getTotalTicket", error);
       toast.error(error.response.data.message || "Failed to get total ticket");
+    }
+  },
+
+  addWindow: async (data) => {
+    try {
+      const { allTickets } = get();
+      const response = await axiosInstance.post("/window/add", data);
+
+      // Ensure that response.data is properly assigned to `windows`
+      set({
+        allTickets: {
+          ...allTickets,
+          windows: response.data, // Replace `windows` with new data
+        },
+      });
+
+      toast.success("Department Created Successfully");
+    } catch (error) {
+      console.log("Error in addWindow", error);
+      toast.error("Failed to add department");
     }
   },
 }));

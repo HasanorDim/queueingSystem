@@ -21,11 +21,6 @@ const EditDepartment = ({
   newCounterName,
   setNewCounterName,
 }) => {
-  const { editDepartment, getAllDepartments } = useDepartmentStore();
-  //   useEffect(() => {
-  //     counters;
-  //   }, [editDepartment]);
-
   return (
     <div className="modal-box overflow-hidden overflow-y-auto">
       <div className="card-body items-center text-center">

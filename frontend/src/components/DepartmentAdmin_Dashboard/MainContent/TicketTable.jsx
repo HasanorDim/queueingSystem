@@ -24,32 +24,22 @@ const TicketTable = () => {
     return <Navigate to="/department-dashboard/windows" />;
   }
 
-  const counterName = "Service Counter 1";
-
-  // console.log("allTickets: ", selectedWindow);
-
   return (
     <div>
-      {/* Counter Name Display */}
-      {counterName && (
-        <div className="mt-6 px-3 py-3 bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-300 border-l-4 border-pink-500 shadow-md rounded-lg">
-          <h3 className="text-xl font-bold">
-            Tickets for:{" "}
-            <span className="text-pink-600 dark:text-pink-400">
-              {selectedWindow?.service_type}
-            </span>
-          </h3>
-        </div>
-      )}
-
-      {/* Divider */}
-      <hr className="bg-gray-300 my-8" />
+      <div className="my-6 px-3 py-3 bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-300 border-l-4 border-pink-500 shadow-md rounded-lg">
+        <h3 className="text-xl font-bold">
+          Tickets for:{" "}
+          <span className="text-pink-600 dark:text-pink-400">
+            {selectedWindow?.service_type}
+          </span>
+        </h3>
+      </div>
 
       {/* Table */}
       <div className="lg:mt-0 rounded shadow bg-white">
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <div className="relative overflow-x-auto sm:rounded-lg h-[calc(100vh-18rem)] overflow-scroll shadow-slate-700 shadow-2xl">
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead className="text-xs text-black uppercase bg-pink-200 dark:bg-gray-700 dark:text-gray-400">
+            <thead className="text-xs text-black uppercase bg-pink-200 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10">
               <tr>
                 <th className="px-6 py-3">Full Name</th>
                 <th className="px-6 py-3">Email</th>

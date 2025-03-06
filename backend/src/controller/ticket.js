@@ -206,6 +206,7 @@ export const getAllTickets = async (req, res) => {
   await connection.beginTransaction();
   try {
     const user = req.user;
+    console.log("user: ", user);
 
     const queryUser = `SELECT department_id FROM users WHERE id = ?`;
     const [rowsUser] = await connection.execute(queryUser, [user.id]);

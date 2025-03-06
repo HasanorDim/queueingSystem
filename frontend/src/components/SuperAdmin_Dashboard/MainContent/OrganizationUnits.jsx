@@ -1,10 +1,10 @@
-import { CircleEllipsis, Plus } from "lucide-react";
-import React, { useCallback, useEffect, useState } from "react";
-import Department from "../../modal/department";
+import { Plus } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ViewDepartment from "../../modal/ViewDepartment";
 import { useDepartmentStore } from "../../../store/useDepartmentStore";
 import DeleteModal from "../../modal/DeleteModal";
+import Department from "../../modal/Department";
 
 const OrganizationUnits = () => {
   const { getAllDepartments, departments, setSelectedUser } =
@@ -12,19 +12,9 @@ const OrganizationUnits = () => {
   const [textHeader, setTextHeader] = useState("");
   const [edit, setEdit] = useState(false);
 
-  // useEffect(() => {
-  //   generateQR();
-  //   console.log("generateQR");
-  // }, []);
-
   useEffect(() => {
     getAllDepartments();
   }, [getAllDepartments]);
-
-  // const handleEditChange = useCallback((isEdited) => {
-  //   setEdit(isEdited);
-  //   return isEdited;
-  // }, []);
 
   return (
     <div>

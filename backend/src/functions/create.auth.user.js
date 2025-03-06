@@ -69,7 +69,7 @@ export const loginAuthUserID = async (email, password, res) => {
     const connection = await pool.getConnection();
 
     const [rows] = await connection.execute(
-      "SELECT id, password, email, role FROM users WHERE email = ?",
+      "SELECT * FROM users WHERE email = ?",
       [email]
     );
 
@@ -96,9 +96,14 @@ export const loginAuthUserID = async (email, password, res) => {
 
     // Generate JWT Token with the user data
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role }, // Only include necessary user data
-      process.env.JWT_SECRET || "your_secret_key",
-      { expiresIn: "1h" }
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        department_id: user.department_id,
+      }, // Only include necessary user data
+      process.env.JWT_SECRET || "your_secret_key"
+      // { expiresIn: "1h" }
     );
 
     // Set the token on the client-side

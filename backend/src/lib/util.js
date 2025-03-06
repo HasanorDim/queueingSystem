@@ -8,7 +8,7 @@ export const setTokenOnCookie = (token, res) => {
     httpOnly: true, // Prevent JavaScript access (XSS protection)
     sameSite: "strict", // Prevent CSRF attacks
     secure: process.env.NODE_ENV !== "development", // Use HTTPS in production
-    maxAge: 60 * 60 * 1000, // 1 hour expiration
+    // maxAge: 60 * 60 * 1000, // 1 hour expiration
   });
 };
 
@@ -17,7 +17,7 @@ export const setTicketTokenOnCookie = (token, res) => {
     httpOnly: true, // Prevent JavaScript access (XSS protection)
     sameSite: "strict", // Prevent CSRF attacks
     secure: process.env.NODE_ENV !== "development", // Use HTTPS in production
-    maxAge: 60 * 60 * 1000, // 1 hour expiration
+    // maxAge: 60 * 60 * 1000, // 1 hour expiration
   });
 };
 
@@ -26,6 +26,6 @@ export const setUserTicketTokenOnCookie = (token, res) => {
     httpOnly: true, // Prevent JavaScript access (XSS protection)
     sameSite: "strict", // Prevent CSRF attacks
     secure: process.env.NODE_ENV !== "development", // Use HTTPS in production
-    maxAge: 60 * 60 * 1000, // 1 hour expiration
+    // maxAge: 60 * 60 * 1000, // 1 hour expiration
   });
 };

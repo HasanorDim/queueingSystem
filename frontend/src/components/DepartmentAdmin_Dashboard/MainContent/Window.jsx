@@ -32,7 +32,7 @@ const Window = () => {
           {allTickets?.windows.map((num) => (
             <NavLink
               key={num.id}
-              // to={`/department-dashboard/windows/table`}
+              to="/department-dashboard/windows/table"
               className="no-underline"
             >
               <Card

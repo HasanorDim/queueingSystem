@@ -48,7 +48,7 @@ const Sidebar = () => {
           >
             <div className="flex items-center space-x-2">
               <i className="fas fa-walking"></i>
-              <span>Manage Queues</span>
+              <span>Overview Queues</span>
             </div>
             <i
               className={`fas fa-chevron-down transform transition-transform duration-300 ${
@@ -65,17 +65,17 @@ const Sidebar = () => {
                 : "max-h-0 opacity-0"
             } bg-white py-2 rounded`}
           >
-            <li className="px-4 py-1 text-gray-400 font-semibold">
+            {/* <li className="px-4 py-1 text-gray-400 font-semibold">
               Queue Management:
-            </li>
-            <li>
+            </li> */}
+            {/* <li>
               <NavLink
                 to="/admin/queue/create"
                 className="block px-6 py-1 text-gray-700 hover:bg-gray-200"
               >
                 Create New Queue
               </NavLink>
-            </li>
+            </li> */}
             <li>
               <NavLink
                 to="/department-dashboard/ticket-view"
@@ -118,9 +118,9 @@ const Sidebar = () => {
               setQueueDropdownOpen(!queueDropdownOpen);
             }}
           >
-            <div className="flex items-center space-x-2">
-              <i className="fas fa-users"></i>
-              <span>Manage Users</span>
+            <div className="flex items-center space-x-2 gap-2">
+              <i className="fas fa-users w-2"></i>
+              <span>Mnge Department</span>
             </div>
             <i
               className={`fas fa-chevron-down transform transition-transform duration-300 ${
@@ -137,23 +137,37 @@ const Sidebar = () => {
                 : "max-h-0 opacity-0"
             } bg-white py-2 rounded`}
           >
-            <li className="px-4 py-1 text-gray-600 font-semibold">
+            {/* <li className="px-4 py-1 text-gray-600 font-semibold">
               User Management:
-            </li>
-            <li>
+            </li> */}
+            {/* <li>
               <NavLink
                 to="/admin/user/view-user"
                 className="block px-6 py-1 text-gray-700 hover:bg-gray-200"
               >
                 Users
               </NavLink>
-            </li>
-            <li>
+            </li> */}
+            {/* <li>
               <NavLink
                 to="/admin/user/counter"
                 className="block px-6 py-1 text-gray-700 hover:bg-gray-200"
               >
                 Counters
+              </NavLink>
+            </li> */}
+            <li>
+              <NavLink
+                to="/department-dashboard/manage-windows"
+                className={({ isActive }) =>
+                  `block px-6 py-1 text-gray-700 ${
+                    isActive
+                      ? "bg-slate-400 text-white hover:bg-gray-500"
+                      : "hover:bg-gray-200"
+                  }`
+                }
+              >
+                Windows
               </NavLink>
             </li>
           </ul>

@@ -176,11 +176,7 @@ const Header = () => {
               <h6 className="dropdown-header">Message Center</h6>
               <a className="dropdown-item d-flex align-items-center" href="#">
                 <div className="dropdown-list-image mr-3">
-                  <img
-                    className="rounded-circle"
-                    src="http://127.0.0.1:8000/img/undraw_female.svg"
-                    alt="..."
-                  />
+                  <img className="rounded-circle" src="" alt="..." />
                   <div className="status-indicator bg-success"></div>
                 </div>
                 <div className="font-weight-bold">
@@ -270,7 +266,7 @@ const Header = () => {
               </span>
               <img
                 className="img-profile rounded-circle w-10"
-                src="http://127.0.0.1:8000/img/undraw_female.svg"
+                src=""
                 alt="User"
               />
             </a>

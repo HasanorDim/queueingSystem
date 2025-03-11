@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import EditDepartment from "./EditDepartment";
 import AddDepartment from "./AddDepartment";
-import { useDepartmentStore } from "../../store/useDepartmentStore";
+import { useDepartmentStore } from "../../../store/useDepartmentStore";
 
 const Department = ({ modalId, onEditChange }) => {
   const { addDepartment, selectedUser, editDepartment, getAllDepartments } =

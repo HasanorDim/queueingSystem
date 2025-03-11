@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDepartmentStore } from "../../store/useDepartmentStore";
+import { useDepartmentStore } from "../../../store/useDepartmentStore";
 
 const DeleteModal = ({ modalId }) => {
   const { deleteDepartment, selectedUser } = useDepartmentStore();

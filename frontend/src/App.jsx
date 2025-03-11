@@ -21,6 +21,7 @@ import ViewTicket from "./components/DepartmentAdmin_Dashboard/MainContent/ViewT
 import Main from "./components/DepartmentAdmin_Dashboard/MainContent/Main";
 import Window from "./components/DepartmentAdmin_Dashboard/MainContent/Window";
 import WindowContent from "./components/DepartmentAdmin_Dashboard/MainContent/WindowContent";
+import ManageWindow from "./components/DepartmentAdmin_Dashboard/MainContent/ManageWindow.jsx/ManageWindow";
 
 function App() {
   const { authUser, checkAuth } = useAuthStore();
@@ -101,7 +102,9 @@ function App() {
           <Route index element={<Main />} />
           <Route path="ticket-view" element={<ViewTicket />} />
           <Route path="windows" element={<Window />} />
-          <Route path="windows/:windowId" element={<WindowContent />} />
+
+          <Route path="window-table" element={<WindowContent />} />
+          <Route path="manage-windows" element={<ManageWindow />} />
         </Route>
 
         {/*  */}

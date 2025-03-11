@@ -1,7 +1,7 @@
 import { Plus, ScanQrCode } from "lucide-react";
 import React, { useEffect } from "react";
-import { useDepartmentStore } from "../../store/useDepartmentStore";
-import CreateUserDepartment from "../SuperAdmin_Dashboard/MainContent/CreateUserDepartment";
+import CreateUserDepartment from "../MainContent/CreateUserDepartment";
+import { useDepartmentStore } from "../../../store/useDepartmentStore";
 
 const ViewDepartment = ({ modalId, headText }) => {
   const { selectedUser, generateQR } = useDepartmentStore();

@@ -212,9 +212,10 @@ export const getAllTickets = async (req, res) => {
     const [rowsUser] = await connection.execute(queryUser, [user.id]);
 
     const query = `
-      SELECT wt.*, sw.*
+      SELECT wt.*, sw.*, u.firstname, u.lastname
       FROM window_tickettb wt
       LEFT JOIN service_windowtb sw ON sw.id = wt.window_id
+      LEFT JOIN users u ON wt.user_id = u.id
       WHERE sw.department_id = ?;
     `;
     const [rows] = await connection.execute(query, [rowsUser[0].department_id]);

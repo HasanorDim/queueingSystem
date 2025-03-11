@@ -6,7 +6,7 @@ import Main from "../../components/DepartmentAdmin_Dashboard/MainContent/Main";
 
 const DepartmentDashboard = () => {
   return (
-    <div className="flex w-full h-screen overflow-hidden">
+    <div className="flex w-full h-screen overflow-hidden bg-[#eeee]">
       {/* SidePanel */}
       <Sidepanel />
 

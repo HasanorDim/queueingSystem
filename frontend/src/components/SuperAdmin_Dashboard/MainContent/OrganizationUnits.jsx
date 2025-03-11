@@ -1,10 +1,10 @@
 import { Plus } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import ViewDepartment from "../../modal/ViewDepartment";
+import ViewDepartment from "../modal/ViewDepartment";
 import { useDepartmentStore } from "../../../store/useDepartmentStore";
-import DeleteModal from "../../modal/DeleteModal";
-import Department from "../../modal/Department";
+import DeleteModal from "../modal/DeleteModal";
+import Department from "../modal/Department";
 
 const OrganizationUnits = () => {
   const { getAllDepartments, departments, setSelectedUser } =

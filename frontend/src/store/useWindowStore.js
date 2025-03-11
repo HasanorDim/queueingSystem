@@ -72,6 +72,6 @@ export const useWindowStore = create((set, get) => ({
   },
 
   setSelectedWindow: (dataWindow) => {
-    set({ selectedWindow: dataWindow });
+    set({ selectedWindow: dataWindow, windowId: dataWindow.id });
   },
 }));

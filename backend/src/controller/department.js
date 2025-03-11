@@ -14,13 +14,6 @@ export const getWindow = async (req, res) => {
       return res.status(404).json({ message: "Department not found" });
     }
 
-    const query1 = `
-      SELECT d.*, sw.* 
-      FROM departments d
-      LEFT JOIN service_windowtb sw ON sw.department_id = d.id
-      WHERE d.id = ?;
-    `;
-
     const query = `
     SELECT d.*, sw.* 
     FROM service_windowtb sw
@@ -56,7 +49,7 @@ export const getWindow = async (req, res) => {
 };
 
 export const addDepartment = async (req, res) => {
-  const { name, description, status, counters } = req.body;
+  const { name, description, counters } = req.body;
 
   const connection = await pool.getConnection();
   await connection.beginTransaction(); // Start a transaction
@@ -109,7 +102,7 @@ export const addDepartment = async (req, res) => {
 };
 
 export const editDepartment = async (req, res) => {
-  const { id, name, description, status, counters } = req.body;
+  const { id, name, description, counters } = req.body;
 
   const connection = await pool.getConnection();
   await connection.beginTransaction(); // Start a transaction
@@ -119,10 +112,10 @@ export const editDepartment = async (req, res) => {
       // ✅ Update the department
       const updateQuery = `
         UPDATE departments
-        SET name = ?, description = ?, status = ?
+        SET name = ?, description = ?
         WHERE id = ?
       `;
-      await connection.execute(updateQuery, [name, description, status, id]);
+      await connection.execute(updateQuery, [name, description, id]);
 
       // ✅ Remove existing counters for this department (Optional: if you want to replace them)
       await connection.execute(
@@ -175,70 +168,9 @@ export const editDepartment = async (req, res) => {
   }
 };
 
-// export const editCounterDepartment = async (req, res) => {
-//   const { id, name } = req.body;
-//   const { departmentId } = req.params;
-
-//   const connection = await pool.getConnection();
-
-//   try {
-//     if (id) {
-//       // If ID is provided, update the existing department
-//       const updateQuery = `
-//         UPDATE departments
-//         SET service_total = ?, name = ?, description = ?, status = ?
-//         WHERE id = ?
-//       `;
-//       await connection.execute(updateQuery, [
-//         services,
-//         name,
-//         description,
-//         status,
-//         id,
-//       ]);
-
-//       // Fetch updated department
-//       const [updatedRows] = await connection.execute(
-//         "SELECT * FROM departments WHERE id = ?",
-//         [id]
-//       );
-
-//       await connection.commit();
-//       return res.status(200).json(updatedRows[0]);
-//     }
-//   } catch (error) {
-//     await connection.rollback();
-//     console.error("Error in editing department:", error);
-//     return res
-//       .status(500)
-//       .json({ message: "Internal server error in editing department" });
-//   } finally {
-//     connection.release();
-//   }
-// };
-
 export const allDepartment = async (req, res) => {
   fetchDepartment(res);
 };
-
-// export const allDepartment = async (req, res) => {
-//   const connection = await pool.getConnection();
-//   try {
-//     const selectQuery = `
-//       SELECT * FROM departments
-//     `;
-//     const [rows] = await connection.execute(selectQuery);
-//     return res.status(200).json(rows);
-//   } catch (error) {
-//     await connection.rollback();
-//     console.error("Error in fetching all departments:", error);
-//     return res
-//       .status(500)
-//       .json({ message: "Internal server error in fetching all departments" });
-//   } finally {
-//     connection.release();
-//   }
-// };
 
 export const getDepartment = async (req, res) => {
   const { departmentId } = req.params;

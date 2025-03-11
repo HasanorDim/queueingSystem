@@ -18,7 +18,7 @@ const WindowContent = () => {
     setActiveButton(buttonId);
   };
   return (
-    <div className="p-8 mt-6 lg:mt-0 rounded shadow bg-white h-full overflow-y-hidden">
+    <div className="p-8 mt-6 lg:mt-0 rounded shadow h-full overflow-y-hidden">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-black">Queue List</h1>
         <div className="flex">

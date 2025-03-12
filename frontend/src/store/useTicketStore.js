@@ -10,6 +10,7 @@ export const useTicketStore = create((set, get) => ({
   totalTickets: 0,
   allTickets: null,
   groupWindows: null,
+  isTicketUpdate: false,
 
   // ticketUpdated: [],
 
@@ -142,6 +143,24 @@ export const useTicketStore = create((set, get) => ({
     } catch (error) {
       console.log("Error in addWindow", error);
       toast.error("Failed to add department");
+    }
+  },
+
+  updateTicketStatus: async (ticketId, status) => {
+    try {
+      // const { allTickets } = get();
+      const response = await axiosInstance.post("/ticket/status", {
+        ticketId,
+        status,
+      });
+
+      toast.success("Ticket in progress");
+    } catch (error) {
+      console.log("Error in addWindow", error);
+      toast.error("Failed to update Ticket Status");
+    } finally {
+      const { isTicketUpdate } = get();
+      set({ isTicketUpdate: !isTicketUpdate });
     }
   },
 }));

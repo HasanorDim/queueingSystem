@@ -10,6 +10,7 @@ export const useWindowStore = create((set, get) => ({
   selectedWindow: null,
   windowTicket: null,
   isWindowUpdate: false,
+  dataInProgress: null,
 
   getWindowDetails: async () => {
     try {
@@ -36,7 +37,36 @@ export const useWindowStore = create((set, get) => ({
         [(item) => Number(item.window.ticket_number)], // Convert to Number
         ["asc"]
       );
+
+      console.log("Window: ", sorted);
       set({ windowTicket: sorted });
+
+      const formattedUsers = sorted
+        .map((row) => ({
+          users: {
+            id: row.users.id,
+            firstname: row.users.firstname,
+            lastname: row.users.lastname,
+            email: row.users.email,
+          },
+          user_details: {
+            id: row.user_details.id,
+            age: row.user_details.age,
+            phone_number: row.user_details.phone_number,
+            city: row.user_details.city,
+          },
+          window: {
+            id: row.window.id,
+            ticket_number: row.window.ticket_number,
+            service_type: row.window.service_type,
+            status: row.window.status,
+          },
+        }))
+        .filter((x) => x.window.status === "In Progress");
+
+      set({ dataInProgress: formattedUsers });
+
+      console.log("formattedUsers: ", formattedUsers);
     } catch (error) {
       console.log("Error in getTicketWindows ", error);
       toast.error(

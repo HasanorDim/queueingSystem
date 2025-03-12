@@ -5,6 +5,7 @@ import {
   newestNumber,
   requestTicket,
   setAuth,
+  ticketStatus,
   totalTickets,
   // setAuth,
   userTicket,
@@ -26,5 +27,6 @@ router.get("/all-tickets", totalTickets);
 router.get("/department-tickets", protectRoute, getAllTickets);
 
 router.post("/add", protectRoute, requestTicket);
+router.post("/status", ticketStatus);
 
 export default router;

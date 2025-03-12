@@ -4,28 +4,19 @@ import { useWindowStore } from "../../../store/useWindowStore";
 import { Navigate } from "react-router-dom";
 
 const QueueUser = () => {
-  const { getAllTickets } = useTicketStore();
+  const { getAllTickets, updateTicketStatus, isTicketUpdate, allTickets } =
+    useTicketStore();
   const {
     windowId,
     selectedWindow,
     getWindowDetails,
     getTicketWindows,
     windowTicket,
-    updateTicketStatus,
     moveTicketToWindow,
+    dataInProgress,
   } = useWindowStore();
 
-  const [selectedTicket, setSelectedTicket] = useState({
-    window: {
-      id: 1,
-      ticket_number: "A001",
-      status: "In Progress",
-    },
-    users: {
-      firstname: "John",
-      lastname: "Doe",
-    },
-  });
+  const [proceedData, setProceedData] = useState("");
 
   useEffect(() => {
     if (windowId) {
@@ -33,29 +24,29 @@ const QueueUser = () => {
       getWindowDetails();
       getTicketWindows();
     }
-  }, [windowId]);
+  }, [windowId, isTicketUpdate]);
 
-  const handleCompleteTicket = async (ticketId) => {
-    await (ticketId, "Completed");
-    await getAllTickets(); // Refresh the ticket list
+  const handleTicketStatus = async (ticketId, status) => {
+    updateTicketStatus(ticketId, status);
   };
 
-  const handleServiceCompleted = async (ticketId) => {
-    await updateTicketStatus(ticketId, "Service Completed");
-    await getAllTickets(); // Refresh the ticket list
-  };
+  // const handleMoveTicket = async (data) => {
+  //   // await moveTicketToWindow(ticketId, newWindowId);
+  //   console.log("++: ", JSON.stringify(data));
+  // };
 
-  const handleMoveTicket = async (ticketId, newWindowId) => {
-    await moveTicketToWindow(ticketId, newWindowId);
-    await getAllTickets(); // Refresh the ticket list
+  const handleSubmitTicket = async (e) => {
+    e.preventDefault();
+
+    console.log("++: ", JSON.parse(proceedData));
   };
 
   if (!windowId) {
     return <Navigate to="/department-dashboard/windows" />;
   }
-
+  console.log("windowTicket: ", windowTicket);
   return (
-    <div className="flex flex-col md:flex-row justify-center gap-8 p-8 min-h-[500px] ">
+    <div className="flex flex-col md:flex-row justify-center gap-8 p-8 min-h-[500px]">
       {/* Queue Users Card */}
       <div className="w-full max-w-md rounded-xl shadow-lg overflow-hidden">
         <div className="sticky top-0 z-10">
@@ -66,7 +57,7 @@ const QueueUser = () => {
 
         <div className="overflow-y-auto max-h-[400px] p-4 space-y-3 bg-white">
           {windowTicket?.length > 0 ? (
-            windowTicket.map((ticket) => (
+            windowTicket.map((ticket, index) => (
               <div
                 key={ticket.window.id}
                 className="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-100 shadow-sm transition hover:shadow-md hover:border-pink-200"
@@ -81,15 +72,27 @@ const QueueUser = () => {
                     </span>
                   </div>
                 </div>
-                <span
-                  className={`px-4 py-1 text-sm font-medium rounded-full ${
-                    ticket.window.status === "In Progress"
-                      ? "bg-yellow-100 text-yellow-800 border border-yellow-200"
-                      : "bg-gray-100 text-gray-700 border border-gray-200"
-                  }`}
-                >
-                  {ticket.window.status}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`px-4 py-1 text-sm font-medium rounded-full ${
+                      ticket.window.status === "In Progress"
+                        ? "bg-yellow-100 text-yellow-800 border border-yellow-200"
+                        : "bg-gray-100 text-gray-700 border border-gray-200"
+                    }`}
+                  >
+                    {ticket.window.status}
+                  </span>
+                  {index === 0 && ticket.window.status !== "In Progress" && (
+                    <button
+                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition-colors"
+                      onClick={() =>
+                        handleTicketStatus(ticket.window.id, "In Progress")
+                      }
+                    >
+                      Next
+                    </button>
+                  )}
+                </div>
               </div>
             ))
           ) : (
@@ -128,68 +131,80 @@ const QueueUser = () => {
         </div>
 
         <div className="relative overflow-y-auto max-h-[400px] p-4 space-y-3 h-full">
-          {selectedTicket ? (
-            <div className="flex flex-col items-center bg-white p-4 rounded-lg border border-gray-100 shadow-sm transition hover:shadow-md hover:border-green-200 h-full justify-between">
-              <div className="flex items-center gap-3 flex-col justify-center">
-                <div className="relative">
-                  <div className="rounded-full border-4 border-pink-600 relative w-32 h-32 flex items-center justify-center overflow-hidden">
-                    <img
-                      className="w-full h-full rounded-full"
-                      src="/defaultimge.jpg"
-                      alt="User Profile"
-                    />
+          {!dataInProgress || dataInProgress.length > 0 ? (
+            dataInProgress?.map((y) => (
+              <div
+                key={y.users.id}
+                className="flex flex-col items-center bg-white p-4 rounded-lg border border-gray-100 shadow-sm transition hover:shadow-md hover:border-green-200 h-full justify-between"
+              >
+                <div className="flex items-center gap-3 flex-col justify-center">
+                  <div className="relative">
+                    <div className="rounded-full border-4 border-pink-600 relative w-32 h-32 flex items-center justify-center overflow-hidden">
+                      <img
+                        className="w-full h-full rounded-full"
+                        src="/defaultimge.jpg"
+                        alt="User Profile"
+                      />
+                    </div>
+                    <div className="absolute top-0 -right-3 w-8 h-8 md:w-10 md:h-10 flex items-center justify-center bg-green-500 text-white font-bold rounded-full shadow-md">
+                      {y.window.ticket_number}
+                    </div>
                   </div>
-                  <div className="absolute top-0 -right-3 w-8 h-8 md:w-10 md:h-10 flex items-center justify-center bg-green-500 text-white font-bold rounded-full shadow-md">
-                    {selectedTicket.window.ticket_number}
+
+                  <div className="flex flex-col justify-center ">
+                    <span className="font-medium text-gray-800 text-center">
+                      {y.users.firstname} {y.users.lastname}
+                    </span>
+                    <span
+                      className={`px-4 py-1 text-sm font-medium rounded-full ${
+                        y.window?.status === "In Progress"
+                          ? "bg-green-100 text-green-800 border border-green-200"
+                          : "bg-gray-100 text-gray-700 border border-gray-200"
+                      }`}
+                    >
+                      {y.window.status}
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex flex-col justify-center ">
-                  <span className="font-medium text-gray-800 text-center">
-                    {selectedTicket.users.firstname}{" "}
-                    {selectedTicket.users.lastname}
-                  </span>
-                  <span
-                    className={`px-4 py-1 text-sm font-medium rounded-full ${
-                      selectedTicket.window.status === "In Progress"
-                        ? "bg-green-100 text-green-800 border border-green-200"
-                        : "bg-gray-100 text-gray-700 border border-gray-200"
-                    }`}
+                {/* Action Buttons */}
+                <div className="flex gap-2 mt-4 ">
+                  <button
+                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
+                    onClick={() => handleTicketStatus(y.window.id, "completed")}
                   >
-                    {selectedTicket.window.status}
-                  </span>
+                    Mark as Complete
+                  </button>
+                  <form onSubmit={handleSubmitTicket} className="flex">
+                    <button
+                      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                      type="submit"
+                      // onClick={() => handleServiceCompleted(y.window.id)}
+                    >
+                      Proceed to
+                    </button>
+                    <select
+                      className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded hover:border-gray-400 transition-colors"
+                      onChange={(e) => setProceedData(e.target.value)}
+                    >
+                      <option value="" disabled selected>
+                        Select a Window
+                      </option>
+
+                      {allTickets?.windows.map((x) => (
+                        <option
+                          key={x.id}
+                          value={JSON.stringify({ window: x, user: y.users })}
+                          disabled={x.id === windowId}
+                        >
+                          Window {x.window_number}
+                        </option>
+                      ))}
+                    </select>
+                  </form>
                 </div>
               </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2 mt-4 ">
-                <button
-                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
-                  onClick={() => handleCompleteTicket(selectedTicket.window.id)}
-                >
-                  Mark as Complete
-                </button>
-                <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-                  onClick={() =>
-                    handleServiceCompleted(selectedTicket.window.id)
-                  }
-                >
-                  Proceed to
-                </button>
-                <select
-                  className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded hover:border-gray-400 transition-colors"
-                  onChange={(e) =>
-                    handleMoveTicket(selectedTicket.window.id, e.target.value)
-                  }
-                >
-                  <option value="">Move to Window</option>
-                  <option value="1">Window 1</option>
-                  <option value="2">Window 2</option>
-                  <option value="3">Window 3</option>
-                </select>
-              </div>
-            </div>
+            ))
           ) : (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <svg

@@ -149,7 +149,8 @@ export const getTableWindow = async (req, res) => {
   FROM users
   INNER JOIN user_detailstb ON users.id = user_detailstb.user_id
   INNER JOIN window_tickettb ON users.id = window_tickettb.user_id
-  WHERE window_tickettb.window_id =?;
+  WHERE window_tickettb.window_id = ? 
+  AND window_tickettb.status != 'completed';
 `;
 
     const [rowsUser] = await connection.execute(queryUser, [windowId]);
@@ -175,7 +176,6 @@ export const getTableWindow = async (req, res) => {
       },
     }));
 
-    console.log("");
     return res.status(200).json(formattedUsers);
   } catch (error) {
     console.log("Error in get all tickets ", error);

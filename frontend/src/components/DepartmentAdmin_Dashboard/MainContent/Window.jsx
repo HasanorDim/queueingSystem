@@ -11,6 +11,8 @@ const Window = () => {
     getAllTickets();
   }, [isWindowUpdate]);
 
+  console.log("allTickets: ", allTickets);
+
   return (
     <div>
       <div className="flex justify-center items-center dark:bg-gray-800 min-h-full w-full p-4">

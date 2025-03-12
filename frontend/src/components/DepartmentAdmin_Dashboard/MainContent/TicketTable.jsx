@@ -86,7 +86,7 @@ const TicketTable = () => {
                           Waiting
                         </span>
                       )}
-                      {ticket.window.status === "active" && (
+                      {ticket.window.status === "In Progress" && (
                         <span className="badge bg-blue-500 text-white px-2 py-1 rounded">
                           In Progress
                         </span>
@@ -101,9 +101,12 @@ const TicketTable = () => {
                           Expired
                         </span>
                       )}
-                      {!["waiting", "active", "completed", "expired"].includes(
-                        ticket.window.status
-                      ) && (
+                      {![
+                        "waiting",
+                        "In Progress",
+                        "completed",
+                        "expired",
+                      ].includes(ticket.window.status) && (
                         <span className="badge bg-gray-500 text-white px-2 py-1 rounded">
                           Unknown
                         </span>

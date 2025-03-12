@@ -77,7 +77,7 @@ export const checkAuth = async (req, res) => {
     const query =
       "SELECT id, service_total, name, description, status, qr_code FROM departments WHERE id = ?";
     const [rows] = await connection.execute(query, [user]);
-
+    await connection.commit();
     if (rows.length === 0) {
       return res.status(404).json({ message: "Department not found" });
     }
@@ -120,6 +120,7 @@ export const setAuth = async (req, res) => {
     if (rows.length === 0) {
       return res.status(404).json({ message: "Department not found" });
     }
+    await connection.commit();
 
     const data = rows[0];
     return res.status(200).json(data);
@@ -147,6 +148,7 @@ export const userTicket = async (req, res) => {
     `;
 
     const [rows] = await connection.execute(query, [userTicketId]);
+    await connection.commit();
 
     if (rows.length === 0) {
       return res.status(404).json({ message: "No ticket found" });
@@ -172,6 +174,7 @@ export const newestNumber = async (req, res) => {
   `;
 
     const [rows] = await connection.execute(query, [windowId]);
+    await connection.commit();
     const maxTicketNumber = rows[0].max_ticket;
     return res.status(200).json({ new: maxTicketNumber });
   } catch (error) {
@@ -191,6 +194,7 @@ SELECT * FROM window_tickettb
   `;
 
     const [rows] = await connection.execute(query);
+    await connection.commit();
     return res.status(200).json(rows);
   } catch (error) {
     await connection.rollback();
@@ -206,7 +210,6 @@ export const getAllTickets = async (req, res) => {
   await connection.beginTransaction();
   try {
     const user = req.user;
-    console.log("user: ", user);
 
     const queryUser = `SELECT department_id FROM users WHERE id = ?`;
     const [rowsUser] = await connection.execute(queryUser, [user.id]);
@@ -224,12 +227,42 @@ export const getAllTickets = async (req, res) => {
     const [windows] = await connection.execute(counter, [
       rowsUser[0].department_id,
     ]);
-
+    await connection.commit();
     return res.status(200).json({ rows, windows });
   } catch (error) {
     await connection.rollback();
     console.log("Error in get all tickets ", error);
     return res.status(500).json({ message: "Server error" });
+  } finally {
+    connection.release();
+  }
+};
+
+export const ticketStatus = async (req, res) => {
+  const connection = await pool.getConnection();
+  await connection.beginTransaction();
+
+  try {
+    const { ticketId, status } = req.body;
+
+    // Update ticket status
+    const updateQuery = `UPDATE window_tickettb SET status = ? WHERE id = ?`;
+    const [result] = await connection.execute(updateQuery, [status, ticketId]);
+
+    if (result.affectedRows === 0) {
+      throw new Error("Ticket not found or no changes made.");
+    }
+
+    await connection.commit();
+    return res
+      .status(200)
+      .json({ message: "Ticket status updated successfully" });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Error updating ticket status:", error);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   } finally {
     connection.release();
   }

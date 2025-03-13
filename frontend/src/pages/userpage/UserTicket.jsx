@@ -8,14 +8,11 @@ const UserTicket = () => {
   const { selectedDepartment } = useDepartmentStore();
 
   useEffect(() => {
-    getTicket(); // Get stored ticket
-    checkTicketAuthUser(); // Ensure auth is checked
-  }, [checkTicketAuthUser]); // Run once when component mounts
+    checkTicketAuthUser();
+    getTicket();
+  }, [checkTicketAuthUser]);
 
-  // Refresh the ticket status
-  // const handleRefresh = () => {
-  //   checkTicketAuth();
-  // };
+  console.log("UserTicket: ", ticket);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">

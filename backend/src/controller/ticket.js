@@ -106,8 +106,8 @@ export const setAuth = async (req, res) => {
       {
         ticketId: departmentId,
       },
-      process.env.JWT_SECRET, // Replace with an environment variable in production
-      { expiresIn: "1h" } // Token expiration time
+      process.env.JWT_SECRET // Replace with an environment variable in production
+      // { expiresIn: "1h" }
     );
 
     // ✅ Set token as a secure HTTP-only cookie
@@ -134,6 +134,7 @@ export const setAuth = async (req, res) => {
 
 export const userTicket = async (req, res) => {
   const userTicketId = req.userTicketId;
+
   if (!userTicketId) {
     return res.status(400).json({ message: "Ticket ID is required" });
   }
@@ -141,9 +142,9 @@ export const userTicket = async (req, res) => {
   const connection = await pool.getConnection();
   try {
     const query = `
-      SELECT wt.*, sw.* 
+      SELECT sw.*, wt.*
       FROM window_tickettb wt
-      LEFT JOIN service_windowtb sw ON sw.id = wt.window_id
+      INNER JOIN service_windowtb sw ON wt.window_id = sw.id
       WHERE wt.id = ?;
     `;
 
@@ -154,6 +155,7 @@ export const userTicket = async (req, res) => {
       return res.status(404).json({ message: "No ticket found" });
     }
 
+    console.log("rows[0]: ", rows[0]);
     return res.status(200).json(rows[0]); // Returns the merged ticket & window data
   } catch (error) {
     console.error("Error in userTicket", error);
@@ -263,6 +265,49 @@ export const ticketStatus = async (req, res) => {
     return res
       .status(500)
       .json({ message: "Server error", error: error.message });
+  } finally {
+    connection.release();
+  }
+};
+
+export const nextWindow = async (req, res) => {
+  const connection = await pool.getConnection();
+  await connection.beginTransaction();
+  try {
+    const { window, user } = req.body;
+
+    console.log("window: ", window);
+    console.log("user: ", user);
+
+    const ticketId = uuidv4();
+
+    const insertQuery = `
+      INSERT INTO window_tickettb (id, window_id, ticket_number, user_id, service_type, status)
+      SELECT ?, ?, COALESCE(MAX(ticket_number), 0) + 1, ?, ?, ?
+      FROM window_tickettb
+      WHERE window_id = ?;
+  `;
+
+    await connection.execute(insertQuery, [
+      ticketId,
+      window.id,
+      user.id,
+      window.service_type,
+      "waiting",
+      window.id,
+    ]);
+
+    // const selectQuery = `SELECT * FROM window_tickettb WHERE id = ?`;
+    // const [rows] = await connection.execute(selectQuery, [ticketId]);
+
+    // const data = rows[0];
+
+    await connection.commit();
+    return res.status(204).json();
+  } catch (error) {
+    await connection.rollback();
+    console.log("Error in get all tickets ", error);
+    return res.status(500).json({ message: "Server error" });
   } finally {
     connection.release();
   }

@@ -4,8 +4,13 @@ import { useWindowStore } from "../../../store/useWindowStore";
 import { Navigate } from "react-router-dom";
 
 const QueueUser = () => {
-  const { getAllTickets, updateTicketStatus, isTicketUpdate, allTickets } =
-    useTicketStore();
+  const {
+    getAllTickets,
+    updateTicketStatus,
+    isTicketUpdate,
+    allTickets,
+    nextWindowForUser,
+  } = useTicketStore();
   const {
     windowId,
     selectedWindow,
@@ -35,16 +40,28 @@ const QueueUser = () => {
   //   console.log("++: ", JSON.stringify(data));
   // };
 
-  const handleSubmitTicket = async (e) => {
+  const handleSubmitTicket = async (e, ticketId, status) => {
     e.preventDefault();
 
-    console.log("++: ", JSON.parse(proceedData));
+    if (!proceedData) return;
+
+    try {
+      const parsedData = JSON.parse(proceedData);
+
+      // Call functions with required parameters
+      nextWindowForUser(parsedData);
+      updateTicketStatus(ticketId, status);
+
+      console.log("Ticket Updated:", ticketId, "Status:", status);
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
+    }
   };
 
   if (!windowId) {
     return <Navigate to="/department-dashboard/windows" />;
   }
-  console.log("windowTicket: ", windowTicket);
+
   return (
     <div className="flex flex-col md:flex-row justify-center gap-8 p-8 min-h-[500px]">
       {/* Queue Users Card */}
@@ -175,7 +192,12 @@ const QueueUser = () => {
                   >
                     Mark as Complete
                   </button>
-                  <form onSubmit={handleSubmitTicket} className="flex">
+                  <form
+                    onSubmit={(e) =>
+                      handleSubmitTicket(e, y.window.id, "completed")
+                    }
+                    className="flex"
+                  >
                     <button
                       className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
                       type="submit"

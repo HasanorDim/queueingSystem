@@ -3,6 +3,7 @@ import {
   checkAuth,
   getAllTickets,
   newestNumber,
+  nextWindow,
   requestTicket,
   setAuth,
   ticketStatus,
@@ -28,5 +29,6 @@ router.get("/department-tickets", protectRoute, getAllTickets);
 
 router.post("/add", protectRoute, requestTicket);
 router.post("/status", ticketStatus);
+router.post("/nextWindowForUser", nextWindow);
 
 export default router;

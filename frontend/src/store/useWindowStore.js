@@ -37,8 +37,6 @@ export const useWindowStore = create((set, get) => ({
         [(item) => Number(item.window.ticket_number)], // Convert to Number
         ["asc"]
       );
-
-      console.log("Window: ", sorted);
       set({ windowTicket: sorted });
 
       const formattedUsers = sorted
@@ -65,8 +63,6 @@ export const useWindowStore = create((set, get) => ({
         .filter((x) => x.window.status === "In Progress");
 
       set({ dataInProgress: formattedUsers });
-
-      console.log("formattedUsers: ", formattedUsers);
     } catch (error) {
       console.log("Error in getTicketWindows ", error);
       toast.error(
@@ -103,5 +99,9 @@ export const useWindowStore = create((set, get) => ({
 
   setSelectedWindow: (dataWindow) => {
     set({ selectedWindow: dataWindow, windowId: dataWindow.id });
+  },
+
+  setWindow: (dataId) => {
+    set({ windowId: dataId });
   },
 }));

@@ -22,6 +22,7 @@ import Main from "./components/DepartmentAdmin_Dashboard/MainContent/Main";
 import Window from "./components/DepartmentAdmin_Dashboard/MainContent/Window";
 import WindowContent from "./components/DepartmentAdmin_Dashboard/MainContent/WindowContent";
 import ManageWindow from "./components/DepartmentAdmin_Dashboard/MainContent/ManageWindow.jsx/ManageWindow";
+import InQueue from "./pages/userpage/InQueue";
 
 function App() {
   const { authUser, checkAuth } = useAuthStore();
@@ -68,6 +69,7 @@ function App() {
           element={<Ticket />}
         />
         <Route path="/UserTicket" element={<UserTicket />} />
+        <Route path="/UserTicket-inqueue" element={<InQueue />} />
 
         {/* Super Admin */}
 

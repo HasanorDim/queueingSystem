@@ -11,6 +11,7 @@ export const useTicketStore = create((set, get) => ({
   allTickets: null,
   groupWindows: null,
   isTicketUpdate: false,
+  userTicketDetails: null,
 
   // ticketUpdated: [],
 
@@ -43,8 +44,9 @@ export const useTicketStore = create((set, get) => ({
   checkTicketAuthUser: async () => {
     try {
       const response = await axiosInstance.get("/ticket/user");
-      console.log("response: ", response.data);
-      set({ ticket: response.data });
+      set({ ticket: response.data, userTicketDetails: response.data });
+
+      // console.log("Ticket: ", response.data);
     } catch (error) {
       console.log("Error in checkTicketAuth: ", error);
       toast.error(
@@ -161,6 +163,19 @@ export const useTicketStore = create((set, get) => ({
     } finally {
       const { isTicketUpdate } = get();
       set({ isTicketUpdate: !isTicketUpdate });
+    }
+  },
+
+  nextWindowForUser: async (userData) => {
+    try {
+      await axiosInstance.post("/ticket/nextWindowForUser", userData);
+      // set({ queue_num: response.data });
+      toast.success("User ticket is set");
+    } catch (error) {
+      console.log("Error in next window for user ", error);
+      toast.error(
+        error.response.data.message || "Failed to get next window for user"
+      );
     }
   },
 }));

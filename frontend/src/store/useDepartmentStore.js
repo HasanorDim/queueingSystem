@@ -148,9 +148,6 @@ export const useDepartmentStore = create((set, get) => ({
         return;
       }
       set({ selectedDepartment: dataId, serviceWindows: response.data });
-
-      const { selectedDepartment } = get();
-      console.log("selectedDepartment: ", selectedDepartment); // Debugging check
     } catch (error) {
       console.log("Error in setselected user ", error);
       toast.error(

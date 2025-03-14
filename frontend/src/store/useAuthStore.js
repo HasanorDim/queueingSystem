@@ -1,6 +1,10 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
+import { io } from "socket.io-client";
+
+const BASE_URL =
+  import.meta.env.MODE === "development" ? "http://localhost:5001" : "/";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -8,11 +12,13 @@ export const useAuthStore = create((set, get) => ({
   isLogingIn: false,
   isUpdatingProfile: false,
   isCheckingAuth: true,
+  socket: null,
 
   checkAuth: async () => {
     try {
       const response = await axiosInstance.get("/auth/check");
       set({ authUser: response.data });
+      get().connectSocket();
     } catch (error) {
       console.log("Error in checkAuth", error);
       set({ authUser: null });
@@ -56,6 +62,7 @@ export const useAuthStore = create((set, get) => ({
 
   logout: async () => {
     try {
+      console.log("isNotifOpenjhdkjahdkjasjkd");
       await axiosInstance.post("/auth/logout");
       set({ authUser: null });
     } catch (error) {
@@ -75,5 +82,18 @@ export const useAuthStore = create((set, get) => ({
         error.response.data.message || "Failed to set user informations"
       );
     }
+  },
+
+  // Socket
+  connectSocket: () => {
+    const { authUser } = get();
+    if (!authUser || get().socket?.connected) return;
+    const socket = io(BASE_URL, {
+      query: {
+        userId: authUser.id,
+      },
+    });
+    socket.connect();
+    set({ socket: socket });
   },
 }));

@@ -11,7 +11,7 @@ import User from "./pages/userpage/User";
 import SetUpAccount from "./pages/SetUpAccount";
 import SystemOverview from "./components/SuperAdmin_Dashboard/MainContent/SystemOverview";
 import OrganizationUnits from "./components/SuperAdmin_Dashboard/MainContent/OrganizationUnits";
-import UserTicket from "./pages/userpage/UserTicket";
+import UserTicket from "./components/userpage/UserTicket";
 import DepartmentDashboard from "./pages/DepartmentAdmin/DepartmentDashboard";
 //
 //
@@ -22,7 +22,8 @@ import Main from "./components/DepartmentAdmin_Dashboard/MainContent/Main";
 import Window from "./components/DepartmentAdmin_Dashboard/MainContent/Window";
 import WindowContent from "./components/DepartmentAdmin_Dashboard/MainContent/WindowContent";
 import ManageWindow from "./components/DepartmentAdmin_Dashboard/MainContent/ManageWindow.jsx/ManageWindow";
-import InQueue from "./pages/userpage/InQueue";
+import InQueue from "./components/userpage/InQueue";
+import UserContent from "./pages/userpage/UserContent";
 
 function App() {
   const { authUser, checkAuth } = useAuthStore();
@@ -63,16 +64,29 @@ function App() {
             )
           }
         />
+
         <Route
           path="/ticket"
-          // element={authTicket ? <Ticket /> : <Navigate to="/userpage" />}
-          element={<Ticket />}
-        />
-        <Route path="/UserTicket" element={<UserTicket />} />
-        <Route path="/UserTicket-inqueue" element={<InQueue />} />
+          element={authUser ? <UserContent /> : <Navigate to="/login" />}
+        >
+          {/* <Route
+            path="inqueue"
+            // element={authUser ? <InQueue /> : <Navigate to="/login" />}
+            element={<InQueue />}
+          /> */}
+          {/* <Route
+            path="UserTicket"
+            element={authUser ? <UserTicket /> : <Navigate to="/login" />}
+          /> */}
+
+          {/* <Route
+            path="user"
+            // element={authTicket ? <Ticket /> : <Navigate to="/userpage" />}
+            element={<Ticket />}
+          /> */}
+        </Route>
 
         {/* Super Admin */}
-
         <Route
           path="/dashboard"
           element={

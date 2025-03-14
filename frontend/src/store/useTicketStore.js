@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
+import { useAuthStore } from "./useAuthStore";
 
 export const useTicketStore = create((set, get) => ({
   authTicket: null,
@@ -45,7 +46,6 @@ export const useTicketStore = create((set, get) => ({
     try {
       const response = await axiosInstance.get("/ticket/user");
       set({ ticket: response.data, userTicketDetails: response.data });
-
       // console.log("Ticket: ", response.data);
     } catch (error) {
       console.log("Error in checkTicketAuth: ", error);
@@ -71,8 +71,8 @@ export const useTicketStore = create((set, get) => ({
   },
 
   getNewestNumber: async (window_id) => {
-    console.log("window_id: ", window_id);
     try {
+      if (!window_id) return;
       const response = await axiosInstance.get(
         `/ticket/newestNumber/${window_id}`
       );
@@ -177,5 +177,20 @@ export const useTicketStore = create((set, get) => ({
         error.response.data.message || "Failed to get next window for user"
       );
     }
+  },
+
+  subscribeToTicket: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+    socket.on("getNewTicket", (newTicket) => {
+      const ticket = { new: newTicket.ticket_number + 1 };
+      set({ queue_num: ticket });
+    });
+  },
+
+  unsubscribeToTicket: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+    socket.off("getNewTicket");
   },
 }));

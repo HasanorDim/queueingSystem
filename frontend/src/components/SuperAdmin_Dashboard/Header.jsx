@@ -1,4 +1,4 @@
-import { ChevronUp, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../../store/useAuthStore";

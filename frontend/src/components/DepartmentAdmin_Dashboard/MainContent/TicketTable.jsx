@@ -41,6 +41,7 @@ const TicketTable = () => {
           <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-black uppercase bg-pink-200 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10">
               <tr>
+                <th className="px-6 py-3">No.</th>
                 <th className="px-6 py-3">Full Name</th>
                 <th className="px-6 py-3">Email</th>
                 <th className="px-6 py-3">Phone Number</th>
@@ -52,11 +53,14 @@ const TicketTable = () => {
             </thead>
             <tbody>
               {windowTicket?.length > 0 ? (
-                windowTicket.map((ticket) => (
+                windowTicket.map((ticket, index) => (
                   <tr
                     key={ticket.window.id}
                     className="odd:bg-blue-100 odd:dark:bg-blue-900 even:bg-green-100 even:dark:bg-green-800 border-b dark:border-gray-700 border-gray-200"
                   >
+                    <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                      {index + 1}
+                    </td>
                     <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                       {ticket.users.firstname} {ticket.users.lastname}
                     </td>

@@ -4,12 +4,21 @@ import { useDepartmentStore } from "../../store/useDepartmentStore";
 import { useNavigate } from "react-router-dom";
 import Window from "../../components/usermodal/Window";
 import toast from "react-hot-toast";
+import { useAuthStore } from "../../store/useAuthStore";
 
 const Ticket = () => {
   const navigate = useNavigate();
 
-  const { addTicket, queue_num, getNewestNumber } = useTicketStore();
-  const { serviceWindows } = useDepartmentStore();
+  const {
+    addTicket,
+    queue_num,
+    getNewestNumber,
+    subscribeToTicket,
+    unsubscribeToTicket,
+  } = useTicketStore();
+  const { serviceWindows, setSelectedDepartment } = useDepartmentStore();
+
+  const { socket } = useAuthStore();
 
   const [isModalOpen, setIsModalOpen] = useState(true); // Show modal initially
   const [formData, setFormData] = useState({
@@ -23,14 +32,20 @@ const Ticket = () => {
     service_type: "",
     window_number: null, // Track the selected window
   });
+  useEffect(() => {
+    subscribeToTicket();
+    return () => unsubscribeToTicket();
+  }, [socket]);
 
   useEffect(() => {
-    getNewestNumber(
-      (serviceWindows.window || []).length > 0
-        ? serviceWindows.window[0].id
-        : ""
-    );
-  }, [getNewestNumber, serviceWindows]);
+    const departmentId = localStorage.getItem("departmentId");
+    setSelectedDepartment(departmentId);
+    // getNewestNumber(
+    //   (serviceWindows.window || []).length > 0
+    //     ? serviceWindows.window[0].id
+    //     : ""
+    // );
+  }, []);
 
   const handleSelectWindow = (window) => {
     setFormData((prev) => ({
@@ -57,6 +72,7 @@ const Ticket = () => {
       }));
 
       await addTicket(formData);
+      localStorage.removeItem("departmentId");
 
       navigate("/UserTicket");
     } catch (error) {
@@ -65,6 +81,7 @@ const Ticket = () => {
     }
   };
 
+  console.log("next next: ");
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       {/* Window Selection Modal */}
@@ -72,6 +89,7 @@ const Ticket = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSelect={handleSelectWindow}
+        serviceWindows={serviceWindows}
       />
 
       <form onSubmit={handleSubmit}>

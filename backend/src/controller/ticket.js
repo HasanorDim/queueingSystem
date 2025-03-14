@@ -6,6 +6,8 @@ import {
   setTicketTokenOnCookie,
   setUserTicketTokenOnCookie,
 } from "../lib/util.js";
+import { io } from "../lib/socket.js";
+
 dotenv.config();
 
 export const requestTicket = async (req, res) => {
@@ -38,6 +40,8 @@ export const requestTicket = async (req, res) => {
     const [rows] = await connection.execute(selectQuery, [ticketId]);
 
     const data = rows[0];
+
+    io.emit("getNewTicket", data);
 
     // Generate a JWT with department data
     const token = jwt.sign(
@@ -154,8 +158,6 @@ export const userTicket = async (req, res) => {
     if (rows.length === 0) {
       return res.status(404).json({ message: "No ticket found" });
     }
-
-    console.log("rows[0]: ", rows[0]);
     return res.status(200).json(rows[0]); // Returns the merged ticket & window data
   } catch (error) {
     console.error("Error in userTicket", error);
@@ -177,6 +179,7 @@ export const newestNumber = async (req, res) => {
 
     const [rows] = await connection.execute(query, [windowId]);
     await connection.commit();
+
     const maxTicketNumber = rows[0].max_ticket;
     return res.status(200).json({ new: maxTicketNumber });
   } catch (error) {

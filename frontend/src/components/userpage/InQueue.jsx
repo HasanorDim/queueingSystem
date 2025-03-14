@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTicketStore } from "../../store/useTicketStore";
 import { useWindowStore } from "../../store/useWindowStore";
+import Navbar from "./Navbar";
 
 const InQueue = () => {
   const { checkTicketAuthUser, ticket, getTicket } = useTicketStore();
@@ -21,7 +22,7 @@ const InQueue = () => {
 
   useEffect(() => {
     if (Array.isArray(windowTicket)) {
-      let displayedQueue = windowTicket.slice(0, 5); // Get first 5 tickets
+      let displayedQueue = windowTicket.slice(0, 5);
 
       const isUserTicketInQueue = displayedQueue.some(
         (t) => t?.id === ticket?.id
@@ -38,7 +39,8 @@ const InQueue = () => {
   }, [windowTicket, ticket]);
 
   return (
-    <div className="flex items-center justify-center h-screen w-full bg-gray-100 p-4">
+    // <div className="flex items-center justify-center h-screen w-full bg-gray-100 p-4">
+    <div>
       <div className="w-full max-w-md rounded-xl shadow-lg overflow-hidden bg-white">
         <div className="sticky top-0 z-10">
           <h2 className="text-lg sm:text-xl font-bold text-center bg-gradient-to-r from-pink-500 to-pink-400 text-white py-3 sm:py-4 px-6">

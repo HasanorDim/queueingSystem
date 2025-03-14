@@ -2,11 +2,11 @@ import React from "react";
 import { useDepartmentStore } from "../../store/useDepartmentStore";
 import { useTicketStore } from "../../store/useTicketStore";
 
-const Window = ({ isOpen, onClose, onSelect }) => {
+const Window = ({ isOpen, onClose, onSelect, serviceWindows }) => {
   if (!isOpen) return null;
+  if (!serviceWindows) return null;
 
   const { getNewestNumber } = useTicketStore();
-  const { serviceWindows } = useDepartmentStore();
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">

@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useTicketStore } from "../../store/useTicketStore";
 import { useDepartmentStore } from "../../store/useDepartmentStore";
 import { formatMessageDate, formatMessageTime } from "../../lib/utils";
+import Navbar from "./Navbar";
 
 const UserTicket = () => {
   const { getTicket, checkTicketAuthUser, ticket } = useTicketStore();
@@ -12,10 +13,9 @@ const UserTicket = () => {
     getTicket();
   }, [checkTicketAuthUser]);
 
-  console.log("UserTicket: ", ticket);
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+      <Navbar className="absolute top-0" />
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md border border-blue-500 text-center">
         <h2 className="text-xl font-bold text-gray-800 mb-2">
           🎟️ Your Ticket Status

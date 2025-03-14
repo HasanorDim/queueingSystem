@@ -150,6 +150,7 @@ const User = () => {
                   if (departmentId) {
                     // await setTicketAuth(departmentId);
                     await setSelectedDepartment(departmentId).then(() => {
+                      localStorage.setItem("departmentId", departmentId);
                       navigate(`/ticket`);
                     });
                     // navigate(`/ticket`);

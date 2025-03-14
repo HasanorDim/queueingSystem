@@ -52,7 +52,7 @@ export const authUserID = async (
       { id: userId, email },
       process.env.JWT_SECRET || "your_secret_key",
       {
-        expiresIn: "1h",
+        // expiresIn: "1h",
       }
     );
 

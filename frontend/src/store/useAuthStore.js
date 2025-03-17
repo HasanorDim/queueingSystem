@@ -62,7 +62,6 @@ export const useAuthStore = create((set, get) => ({
 
   logout: async () => {
     try {
-      console.log("isNotifOpenjhdkjahdkjasjkd");
       await axiosInstance.post("/auth/logout");
       set({ authUser: null });
     } catch (error) {

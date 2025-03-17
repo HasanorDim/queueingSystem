@@ -6,7 +6,7 @@ const Sidebar = () => {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   return (
-    <div className="h-screen w-64 bg-gradient-to-b from-pink-500 to-pink-700 text-white px-5 pt-5">
+    <div className="h-screen w-64 bg-gradient-to-b from-pink-500 to-pink-700 text-white px-5 pt-5 fixed md:relative">
       {/* Branding */}
       <a href="/admin/dashboard" className="flex flex-col items-center">
         <div className="text-3xl font-bold">Queueing</div>
@@ -38,13 +38,7 @@ const Sidebar = () => {
         <li className="mt-2">
           <button
             className="w-full flex items-center justify-between px-4 py-2 hover:bg-pink-600 transition ease-in-out duration-300"
-            onClick={() => {
-              {
-                setQueueDropdownOpen(!queueDropdownOpen);
-                if (!userDropdownOpen) return;
-                setUserDropdownOpen(!userDropdownOpen);
-              }
-            }}
+            onClick={() => setQueueDropdownOpen(!queueDropdownOpen)}
           >
             <div className="flex items-center space-x-2">
               <i className="fas fa-walking"></i>
@@ -57,29 +51,15 @@ const Sidebar = () => {
             ></i>
           </button>
 
-          {/* Smooth Dropdown Content */}
+          {/* Dropdown Content */}
           <ul
             className={`overflow-hidden transition-all duration-300 ease-in-out ${
-              queueDropdownOpen
-                ? "max-h-[200px] opacity-100"
-                : "max-h-0 opacity-0"
+              queueDropdownOpen ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
             } bg-white py-2 rounded`}
           >
-            {/* <li className="px-4 py-1 text-gray-400 font-semibold">
-              Queue Management:
-            </li> */}
-            {/* <li>
-              <NavLink
-                to="/admin/queue/create"
-                className="block px-6 py-1 text-gray-700 hover:bg-gray-200"
-              >
-                Create New Queue
-              </NavLink>
-            </li> */}
             <li>
               <NavLink
                 to="/department-dashboard/ticket-view"
-                // className="block px-6 py-1 text-gray-700 hover:bg-gray-200"
                 className={({ isActive }) =>
                   `block px-6 py-1 text-gray-700 ${
                     isActive
@@ -112,11 +92,7 @@ const Sidebar = () => {
         <li className="mt-2">
           <button
             className="w-full flex items-center justify-between px-4 py-2 hover:bg-pink-600 transition ease-in-out duration-300"
-            onClick={() => {
-              setUserDropdownOpen(!userDropdownOpen);
-              if (!queueDropdownOpen) return;
-              setQueueDropdownOpen(!queueDropdownOpen);
-            }}
+            onClick={() => setUserDropdownOpen(!userDropdownOpen)}
           >
             <div className="flex items-center space-x-2 gap-2">
               <i className="fas fa-users w-2"></i>
@@ -129,33 +105,12 @@ const Sidebar = () => {
             ></i>
           </button>
 
-          {/* Smooth Dropdown Content */}
+          {/* Dropdown Content */}
           <ul
             className={`overflow-hidden transition-all duration-300 ease-in-out ${
-              userDropdownOpen
-                ? "max-h-[200px] opacity-100"
-                : "max-h-0 opacity-0"
+              userDropdownOpen ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
             } bg-white py-2 rounded`}
           >
-            {/* <li className="px-4 py-1 text-gray-600 font-semibold">
-              User Management:
-            </li> */}
-            {/* <li>
-              <NavLink
-                to="/admin/user/view-user"
-                className="block px-6 py-1 text-gray-700 hover:bg-gray-200"
-              >
-                Users
-              </NavLink>
-            </li> */}
-            {/* <li>
-              <NavLink
-                to="/admin/user/counter"
-                className="block px-6 py-1 text-gray-700 hover:bg-gray-200"
-              >
-                Counters
-              </NavLink>
-            </li> */}
             <li>
               <NavLink
                 to="/department-dashboard/manage-windows"

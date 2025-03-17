@@ -74,14 +74,12 @@ const Ticket = () => {
       await addTicket(formData);
       localStorage.removeItem("departmentId");
 
-      navigate("/UserTicket");
+      navigate("/user/ticket");
     } catch (error) {
       console.error("Error adding ticket:", error);
       toast.error("Failed to add ticket. Please try again.");
     }
   };
-
-  console.log("next next: ");
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       {/* Window Selection Modal */}

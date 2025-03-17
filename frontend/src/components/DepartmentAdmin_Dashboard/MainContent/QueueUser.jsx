@@ -13,11 +13,9 @@ const QueueUser = () => {
   } = useTicketStore();
   const {
     windowId,
-    selectedWindow,
     getWindowDetails,
     getTicketWindows,
     windowTicket,
-    moveTicketToWindow,
     dataInProgress,
   } = useWindowStore();
 
@@ -34,11 +32,6 @@ const QueueUser = () => {
   const handleTicketStatus = async (ticketId, status) => {
     updateTicketStatus(ticketId, status);
   };
-
-  // const handleMoveTicket = async (data) => {
-  //   // await moveTicketToWindow(ticketId, newWindowId);
-  //   console.log("++: ", JSON.stringify(data));
-  // };
 
   const handleSubmitTicket = async (e, ticketId, status) => {
     e.preventDefault();

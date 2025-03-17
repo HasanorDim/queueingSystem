@@ -143,15 +143,15 @@ export const getTableWindow = async (req, res) => {
     const { windowId } = req.params;
 
     const queryUser = `
-  SELECT users.id AS user_id, users.firstname, users.lastname, users.email,
-         user_detailstb.id AS detail_id, user_detailstb.phone_number, user_detailstb.city, user_detailstb.age,
-         window_tickettb.id AS ticket_id, window_tickettb.ticket_number, window_tickettb.status, window_tickettb.service_type
-  FROM users
-  INNER JOIN user_detailstb ON users.id = user_detailstb.user_id
-  INNER JOIN window_tickettb ON users.id = window_tickettb.user_id
-  WHERE window_tickettb.window_id = ? 
-  AND window_tickettb.status != 'completed';
-`;
+      SELECT users.id AS user_id, users.firstname, users.lastname, users.email,
+            user_detailstb.id AS detail_id, user_detailstb.phone_number, user_detailstb.city, user_detailstb.age,
+            window_tickettb.id AS ticket_id, window_tickettb.ticket_number, window_tickettb.status, window_tickettb.service_type
+      FROM users
+      INNER JOIN user_detailstb ON users.id = user_detailstb.user_id
+      INNER JOIN window_tickettb ON users.id = window_tickettb.user_id
+      WHERE window_tickettb.window_id = ? 
+      AND window_tickettb.status != 'completed';
+    `;
 
     const [rowsUser] = await connection.execute(queryUser, [windowId]);
 

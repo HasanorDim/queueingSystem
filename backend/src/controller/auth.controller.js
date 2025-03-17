@@ -82,7 +82,7 @@ export const login = async (req, res) => {
 export const logout = (req, res) => {
   // Clear the JWT token from the cookie
   res.clearCookie("jwt"); // Adjust the cookie name if necessary
-
+  res.clearCookie("jwt_ticket_user");
   // Send response to indicate successful logout
   res.status(200).json({ message: "Logged out successfully" });
 };

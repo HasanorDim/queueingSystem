@@ -11,23 +11,25 @@ import User from "./pages/userpage/User";
 import SetUpAccount from "./pages/SetUpAccount";
 import SystemOverview from "./components/SuperAdmin_Dashboard/MainContent/SystemOverview";
 import OrganizationUnits from "./components/SuperAdmin_Dashboard/MainContent/OrganizationUnits";
-import UserTicket from "./components/userpage/UserTicket";
 import DepartmentDashboard from "./pages/DepartmentAdmin/DepartmentDashboard";
-//
-//
 import Ticket from "./pages/userpage/Ticket";
+//
+//
 import { Toaster } from "react-hot-toast";
 import ViewTicket from "./components/DepartmentAdmin_Dashboard/MainContent/ViewTicket";
 import Main from "./components/DepartmentAdmin_Dashboard/MainContent/Main";
 import Window from "./components/DepartmentAdmin_Dashboard/MainContent/Window";
 import WindowContent from "./components/DepartmentAdmin_Dashboard/MainContent/WindowContent";
 import ManageWindow from "./components/DepartmentAdmin_Dashboard/MainContent/ManageWindow.jsx/ManageWindow";
-import InQueue from "./components/userpage/InQueue";
+import LoadingScreen from "./components/Loader/LoadingScreen";
+
 import UserContent from "./pages/userpage/UserContent";
+import UserMainContent from "./components/userpage/UserMainContent";
+import UserProfile from "./components/userpage/UserProfile";
 
 function App() {
   const { authUser, checkAuth } = useAuthStore();
-  const { authTicket } = useTicketStore();
+  const { ticket, checkTicketAuthUser } = useTicketStore();
 
   // ✅ Memoize authentication checks
   const initializeAuth = useCallback(() => {
@@ -37,6 +39,7 @@ function App() {
   // ✅ Run only once when the component mounts
   useEffect(() => {
     initializeAuth();
+    checkTicketAuthUser();
   }, [initializeAuth]);
 
   return (
@@ -67,24 +70,32 @@ function App() {
 
         <Route
           path="/ticket"
-          element={authUser ? <UserContent /> : <Navigate to="/login" />}
+          element={authUser ? <Ticket /> : <Navigate to="/userpage" />}
+        />
+        {/* UserMainContent */}
+        <Route
+          path="/user"
+          element={ticket ? <UserContent /> : <Navigate to="/userpage" />}
         >
-          {/* <Route
-            path="inqueue"
-            // element={authUser ? <InQueue /> : <Navigate to="/login" />}
-            element={<InQueue />}
-          /> */}
-          {/* <Route
+          <Route index path="profile" element={<UserProfile />} />
+          <Route path="ticket" element={<UserMainContent />} />
+        </Route>
+
+        {/* <Route
+          path="/ticket"
+          element={authUser ? <Ticket /> : <Navigate to="/userpage" />}
+        > */}
+        {/* <Route
             path="UserTicket"
             element={authUser ? <UserTicket /> : <Navigate to="/login" />}
           /> */}
-
-          {/* <Route
+        {/* UserContent */}
+        {/* <Route
             path="user"
             // element={authTicket ? <Ticket /> : <Navigate to="/userpage" />}
             element={<Ticket />}
           /> */}
-        </Route>
+        {/* </Route> */}
 
         {/* Super Admin */}
         <Route
@@ -129,7 +140,11 @@ function App() {
           path="/userpage"
           element={
             authUser?.role === "client" ? (
-              <User />
+              ticket ? (
+                <Navigate to="/user" />
+              ) : (
+                <User />
+              )
             ) : (
               <Navigate to="/dashboard" />
             )

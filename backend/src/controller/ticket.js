@@ -7,6 +7,7 @@ import {
   setUserTicketTokenOnCookie,
 } from "../lib/util.js";
 import { io } from "../lib/socket.js";
+import { broadcastTableWindowUpdate } from "../functions/socket.helper.js";
 
 dotenv.config();
 
@@ -48,8 +49,8 @@ export const requestTicket = async (req, res) => {
       {
         userTicketId: ticketId,
       },
-      process.env.JWT_SECRET, // Replace with an environment variable in production
-      { expiresIn: "1h" } // Token expiration time
+      process.env.JWT_SECRET // Replace with an environment variable in production
+      // { expiresIn: "1h" } // Token expiration time
     );
 
     // ✅ Set token as a secure HTTP-only cookie
@@ -258,6 +259,45 @@ export const ticketStatus = async (req, res) => {
       throw new Error("Ticket not found or no changes made.");
     }
 
+    const selectQuery = `SELECT * FROM window_tickettb WHERE id = ?`;
+    const [rows] = await connection.execute(selectQuery, [ticketId]);
+
+    const window_id = rows[0].window_id;
+
+    const queryUser = `
+      SELECT users.id AS user_id, users.firstname, users.lastname, users.email,
+            user_detailstb.id AS detail_id, user_detailstb.phone_number, user_detailstb.city, user_detailstb.age,
+            window_tickettb.id AS ticket_id, window_tickettb.ticket_number, window_tickettb.status, window_tickettb.service_type
+      FROM users
+      INNER JOIN user_detailstb ON users.id = user_detailstb.user_id
+      INNER JOIN window_tickettb ON users.id = window_tickettb.user_id
+      WHERE window_tickettb.window_id = ?
+      AND window_tickettb.status != 'completed';
+    `;
+
+    const [rowsUser] = await connection.execute(queryUser, [window_id]);
+
+    const formattedUsers = rowsUser.map((row) => ({
+      users: {
+        id: row.user_id,
+        firstname: row.firstname,
+        lastname: row.lastname,
+        email: row.email,
+      },
+      user_details: {
+        id: row.detail_id,
+        age: row.age,
+        phone_number: row.phone_number,
+        city: row.city,
+      },
+      window: {
+        id: row.ticket_id,
+        ticket_number: row.ticket_number,
+        service_type: row.service_type,
+        status: row.status,
+      },
+    }));
+    broadcastTableWindowUpdate(formattedUsers);
     await connection.commit();
     return res
       .status(200)
@@ -279,9 +319,6 @@ export const nextWindow = async (req, res) => {
   try {
     const { window, user } = req.body;
 
-    console.log("window: ", window);
-    console.log("user: ", user);
-
     const ticketId = uuidv4();
 
     const insertQuery = `
@@ -300,12 +337,8 @@ export const nextWindow = async (req, res) => {
       window.id,
     ]);
 
-    // const selectQuery = `SELECT * FROM window_tickettb WHERE id = ?`;
-    // const [rows] = await connection.execute(selectQuery, [ticketId]);
-
-    // const data = rows[0];
-
     await connection.commit();
+    // broadcastTableWindowUpdate(formattedUsers);
     return res.status(204).json();
   } catch (error) {
     await connection.rollback();

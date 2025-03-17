@@ -3,19 +3,29 @@ import { useTicketStore } from "../../store/useTicketStore";
 import { useDepartmentStore } from "../../store/useDepartmentStore";
 import { formatMessageDate, formatMessageTime } from "../../lib/utils";
 import Navbar from "./Navbar";
+import YourTurnMessage from "./YourTurnMessage";
+import { useWindowStore } from "../../store/useWindowStore";
+import { useAuthStore } from "../../store/useAuthStore";
 
 const UserTicket = () => {
   const { getTicket, checkTicketAuthUser, ticket } = useTicketStore();
   const { selectedDepartment } = useDepartmentStore();
+  const { isUpdated, subscribeNewTicketWindows, unsubscribeNewTicketWindows } =
+    useWindowStore();
+  const { socket } = useAuthStore();
 
   useEffect(() => {
     checkTicketAuthUser();
     getTicket();
-  }, [checkTicketAuthUser]);
+  }, [isUpdated]);
+
+  useEffect(() => {
+    subscribeNewTicketWindows();
+    return () => unsubscribeNewTicketWindows();
+  }, [socket]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <Navbar className="absolute top-0" />
+    <div className="flex flex-col items-center justify-center h-full w-full p-4">
       <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md border border-blue-500 text-center">
         <h2 className="text-xl font-bold text-gray-800 mb-2">
           🎟️ Your Ticket Status
@@ -42,7 +52,7 @@ const UserTicket = () => {
                     : "text-3xl font-bold text-green-500"
                 }
               >
-                {ticket.status === "waiting" ? "In Queue" : "Your Turn"}
+                {ticket.status === "waiting" ? "In Queue" : <YourTurnMessage />}{" "}
               </h1>
 
               <div className="mt-4 text-gray-600 text-sm">Queue Number</div>
@@ -64,7 +74,7 @@ const UserTicket = () => {
                   className={`ml-1 px-2 py-1 rounded ${
                     ticket.status === "waiting"
                       ? "bg-yellow-400 text-white"
-                      : ticket.status === "serving"
+                      : ticket.status === "In Progress"
                       ? "bg-green-500 text-white"
                       : "bg-gray-400 text-white"
                   }`}

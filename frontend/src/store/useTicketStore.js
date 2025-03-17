@@ -13,7 +13,7 @@ export const useTicketStore = create((set, get) => ({
   groupWindows: null,
   isTicketUpdate: false,
   userTicketDetails: null,
-
+  isStatusUpdated: false,
   // ticketUpdated: [],
 
   // setTicketAuth: async (departmentId) => {
@@ -87,8 +87,6 @@ export const useTicketStore = create((set, get) => ({
 
   getTicket: async () => {
     try {
-      const { ticket } = get();
-      if (!ticket) return;
       const response = await axiosInstance.get("/ticket/user");
       set({ ticket: response.data });
     } catch (error) {
@@ -155,7 +153,8 @@ export const useTicketStore = create((set, get) => ({
         ticketId,
         status,
       });
-
+      const { isStatusUpdated } = get();
+      set({ isStatusUpdated: !isStatusUpdated });
       toast.success("Ticket in progress");
     } catch (error) {
       console.log("Error in addWindow", error);

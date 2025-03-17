@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { orderBy } from "natural-orderby";
 import { useTicketStore } from "./useTicketStore";
 import EditWindow from "../components/DepartmentAdmin_Dashboard/modal/EditWindow";
+import { useAuthStore } from "./useAuthStore";
 
 export const useWindowStore = create((set, get) => ({
   windowId: "",
@@ -11,6 +12,7 @@ export const useWindowStore = create((set, get) => ({
   windowTicket: null,
   isWindowUpdate: false,
   dataInProgress: null,
+  isUpdated: false,
 
   getWindowDetails: async () => {
     try {
@@ -103,5 +105,28 @@ export const useWindowStore = create((set, get) => ({
 
   setWindow: (dataId) => {
     set({ windowId: dataId });
+  },
+
+  subscribeNewTicketWindows: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+
+    socket.off("tableWindowUpdated");
+    socket.on("tableWindowUpdated", (UpdatedTicket) => {
+      const sorted = orderBy(
+        [...UpdatedTicket],
+        [(item) => Number(item.window.ticket_number)], // Convert to Number
+        ["asc"]
+      );
+      set({ windowTicket: sorted });
+      const { isUpdated } = get();
+      set({ isUpdated: !isUpdated });
+    });
+  },
+
+  unsubscribeNewTicketWindows: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+    socket.off("tableWindowUpdated");
   },
 }));

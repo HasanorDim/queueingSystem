@@ -7,6 +7,11 @@ const Navbar = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
 
+  const hadnleHiddeBtn = () => {
+    setIsNotifOpen(false);
+    setIsUserMenuOpen(false);
+  };
+
   return (
     <nav className="bg-white fixed w-full z-10 top-0 shadow">
       <div className="container mx-auto flex items-center justify-between py-4 px-6">
@@ -76,21 +81,27 @@ const Navbar = () => {
               <div className="absolute botton-0 right-0 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-50 overflow-hidden">
                 <ul className="list-none">
                   <li>
-                    <a
-                      href="/profile"
-                      className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
-                    >
-                      My Account
-                    </a>
-                  </li>
-                  <li>
                     <NavLink
-                      to="/UserTicket-inqueue"
+                      to="/user/profile"
                       className={({ isActive }) =>
                         `block px-4 py-2 text-gray-700 hover:bg-gray-200 ${
                           isActive ? "bg-pink-600" : ""
                         }`
                       }
+                      onClick={hadnleHiddeBtn}
+                    >
+                      My Account
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink
+                      to="/user/ticket"
+                      className={({ isActive }) =>
+                        `block px-4 py-2 text-gray-700 hover:bg-gray-200 ${
+                          isActive ? "bg-pink-600" : ""
+                        }`
+                      }
+                      onClick={hadnleHiddeBtn}
                     >
                       In Queue
                     </NavLink>

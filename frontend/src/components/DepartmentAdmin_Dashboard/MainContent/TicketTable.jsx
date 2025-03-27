@@ -100,16 +100,16 @@ const TicketTable = () => {
                           Completed
                         </span>
                       )}
-                      {ticket.window.status === "expired" && (
+                      {ticket.window.status === "void" && (
                         <span className="badge bg-red-500 text-white px-2 py-1 rounded">
-                          Expired
+                          void
                         </span>
                       )}
                       {![
                         "waiting",
                         "In Progress",
                         "completed",
-                        "expired",
+                        "void",
                       ].includes(ticket.window.status) && (
                         <span className="badge bg-gray-500 text-white px-2 py-1 rounded">
                           Unknown

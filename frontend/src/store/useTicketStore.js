@@ -14,39 +14,32 @@ export const useTicketStore = create((set, get) => ({
   isTicketUpdate: false,
   userTicketDetails: null,
   isStatusUpdated: false,
-  // ticketUpdated: [],
-
-  // setTicketAuth: async (departmentId) => {
-  //   try {
-  //     await axiosInstance.get(`/ticket/setAuth/${departmentId}`);
-  //     // set({ authTicket: response.data });
-  //   } catch (error) {
-  //     console.log("Error in setTicketAuth: ", error);
-  //     toast.error(
-  //       error.response.data.message ||
-  //         "Failed to check ticket authentication setTicketAuth"
-  //     );
-  //   }
-  // },
-
-  // checkTicketAuth: async () => {
-  //   try {
-  //     const response = await axiosInstance.get("/ticket/check");
-  //     set({ authTicket: response.data });
-  //   } catch (error) {
-  //     console.log("Error in checkTicketAuth: ", error);
-  //     toast.error(
-  //       error.response.data.message ||
-  //         "Failed to check ticket authentication checkTicketAuth"
-  //     );
-  //   }
-  // },
+  isCutOff: false,
+  isBreakTime: false,
+  calledTicket: null,
+  remainingTime: 0,
+  intervalId: null,
 
   checkTicketAuthUser: async () => {
     try {
       const response = await axiosInstance.get("/ticket/user");
       set({ ticket: response.data, userTicketDetails: response.data });
       // console.log("Ticket: ", response.data);
+    } catch (error) {
+      console.log("Error in checkTicketAuth: ", error);
+      toast.error(
+        error.response.data.message ||
+          "Failed to check ticket authentication checkTicketAuth"
+      );
+    }
+  },
+
+  checkTicketUser: async () => {
+    try {
+      const response = await axiosInstance.get("/ticket/checkUserTicket");
+      if (response.data) {
+        set({ ticket: response.data });
+      }
     } catch (error) {
       console.log("Error in checkTicketAuth: ", error);
       toast.error(
@@ -76,7 +69,6 @@ export const useTicketStore = create((set, get) => ({
       const response = await axiosInstance.get(
         `/ticket/newestNumber/${window_id}`
       );
-      // set({ tickets: orderBy(response.data.rows, "orderNumber", "asc") });
 
       set({ queue_num: response.data });
     } catch (error) {
@@ -87,8 +79,6 @@ export const useTicketStore = create((set, get) => ({
 
   getTicket: async () => {
     try {
-      const response = await axiosInstance.get("/ticket/user");
-      set({ ticket: response.data });
     } catch (error) {
       console.log("Error in getTicket", error);
       toast.error(error.response.data.message || "Failed to get ticket");
@@ -154,7 +144,12 @@ export const useTicketStore = create((set, get) => ({
         status,
       });
       const { isStatusUpdated } = get();
-      set({ isStatusUpdated: !isStatusUpdated });
+
+      const socket = useAuthStore.getState().socket;
+      if (socket && socket.connected) {
+        socket.emit("statusUpdated", !isStatusUpdated);
+      }
+
       toast.success("Ticket in progress");
     } catch (error) {
       console.log("Error in addWindow", error);
@@ -178,9 +173,97 @@ export const useTicketStore = create((set, get) => ({
     }
   },
 
+  setTicketNotPresent: async (data) => {
+    try {
+      await axiosInstance.post("/ticket/notPresent", data);
+    } catch (error) {
+      console.log("Error in setTicketNotPresent: ", error);
+      toast.error(
+        error.response.data.message || "Failed to set ticket not present"
+      );
+    }
+  },
+
+  releodTime: async () => {
+    const { ticket, intervalId } = get();
+
+    console.log("Ticket: ", ticket);
+
+    // Clear the existing interval if it exists
+    if (intervalId) {
+      clearInterval(intervalId);
+    }
+
+    if (!ticket || !ticket.called_at) return;
+
+    // Convert called_at to a timestamp (milliseconds)
+    const calledAtTimestamp = new Date(ticket.called_at).getTime();
+
+    // Calculate remaining time
+    const remaining = Math.max(
+      120 - Math.floor((Date.now() - calledAtTimestamp) / 1000),
+      0
+    );
+
+    set({ remainingTime: remaining });
+
+    // Start countdown
+    const newIntervalId = setInterval(() => {
+      set((state) => {
+        const newTime = Math.max(state.remainingTime - 1, 0);
+        if (newTime === 0) {
+          clearInterval(newIntervalId);
+          get().updateTicketStatus(ticket.id, "void");
+        }
+        return { remainingTime: newTime };
+      });
+    }, 1000);
+
+    // Store the new interval ID in the state
+    set({ intervalId: newIntervalId });
+  },
+
+  subsTicketVoidTimer: async () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+    socket.off("ticketCalled");
+    socket.on("ticketCalled", (ticketData) => {
+      const remaining = Math.max(
+        120 - Math.floor((Date.now() - ticketData.calledAt) / 1000),
+        0
+      );
+      set({
+        calledTicket: {
+          ticketId: ticketData.ticketId,
+          calledAt: ticketData.calledAt,
+        },
+        remainingTime: remaining,
+      });
+
+      // Start countdown
+      const interval = setInterval(() => {
+        set((state) => {
+          const newTime = Math.max(state.remainingTime - 1, 0);
+          if (newTime === 0) {
+            clearInterval(interval);
+            get().updateTicketStatus(ticket.id, "void");
+          }
+          return { remainingTime: newTime };
+        });
+      }, 1000);
+    });
+  },
+
+  unsubsTicketVoidTimer: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+    socket.off("ticketCalled");
+  },
+
   subscribeToTicket: () => {
     const socket = useAuthStore.getState().socket;
     if (!socket) return;
+    socket.off("getNewTicket");
     socket.on("getNewTicket", (newTicket) => {
       const ticket = { new: newTicket.ticket_number + 1 };
       set({ queue_num: ticket });
@@ -191,5 +274,48 @@ export const useTicketStore = create((set, get) => ({
     const socket = useAuthStore.getState().socket;
     if (!socket) return;
     socket.off("getNewTicket");
+  },
+
+  setBreakTime: async (data) => {
+    set({ isBreakTime: data });
+
+    const socket = useAuthStore.getState().socket;
+    if (socket && socket.connected) {
+      socket.emit("breakTimeStatus", data);
+    }
+  },
+
+  subscribeToBreakTime: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+
+    socket.on("updateBreakTime", (data) => {
+      set({ isBreakTime: data });
+    });
+  },
+
+  // Unsubscribe to prevent memory leaks
+  unsubscribeToBreakTime: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+
+    socket.off("updateBreakTime");
+  },
+
+  subsToUpdateStatus: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+    socket.off("updateStatus");
+    socket.on("updateStatus", (data) => {
+      set({ isStatusUpdated: data });
+    });
+  },
+
+  // Unsubscribe to prevent memory leaks
+  unsubsubsToUpdateStatus: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+
+    socket.off("updateStatus");
   },
 }));

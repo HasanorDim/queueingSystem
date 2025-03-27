@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
+import { useTicketStore } from "../../../store/useTicketStore";
 
 const Main = () => {
-  const [queuePaused, setQueuePaused] = useState(false);
+  const { isBreakTime, setBreakTime } = useTicketStore();
 
   const toggleAllQueues = (event) => {
     event.preventDefault();
-    setQueuePaused(!queuePaused);
+    setBreakTime(!isBreakTime);
   };
 
   return (
@@ -16,11 +17,11 @@ const Main = () => {
         <button
           id="queueToggleBtn"
           className="inline-block px-5 py-3 text-white rounded shadow-lg text-base"
-          style={{ backgroundColor: queuePaused ? "#4CAF50" : "#ff3385" }}
+          style={{ backgroundColor: isBreakTime ? "#4CAF50" : "#ff3385" }}
           onClick={toggleAllQueues}
         >
           <span id="queueToggleText">
-            {queuePaused ? "Resume All Queues" : "Pause All Queues"}
+            {isBreakTime ? "Resume All Queues" : "Pause All Queues"}
           </span>
         </button>
       </div>

@@ -11,6 +11,7 @@ import department from "./routes/department.js";
 import ticket from "./routes/ticket.js";
 import users from "./routes/user.js";
 import window from "./routes/window.js";
+import "./functions/scheduling.timer.js";
 
 dotenv.config();
 

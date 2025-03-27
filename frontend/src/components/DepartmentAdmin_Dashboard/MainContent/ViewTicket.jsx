@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 
 import { useTicketStore } from "../../../store/useTicketStore";
 const ViewTicket = () => {
@@ -12,8 +11,6 @@ const ViewTicket = () => {
   }, []);
   const openModal = (id) => setOpenModalId(id);
   const closeModal = () => setOpenModalId(null);
-
-  console.log("allTickets: ", allTickets || "none");
 
   return (
     <div className="p-8 mt-6 lg:mt-0 rounded shadow">
@@ -45,7 +42,7 @@ const ViewTicket = () => {
             </tr>
           </thead>
           <tbody className="relative">
-            {allTickets?.rows ? (
+            {allTickets?.rows.length > 0 ? (
               allTickets?.rows.map((queue, index) => (
                 <tr
                   key={index}

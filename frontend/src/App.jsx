@@ -29,7 +29,7 @@ import UserProfile from "./components/userpage/UserProfile";
 
 function App() {
   const { authUser, checkAuth } = useAuthStore();
-  const { ticket, checkTicketAuthUser } = useTicketStore();
+  const { checkTicketUser, ticket, checkTicketAuthUser } = useTicketStore();
 
   // ✅ Memoize authentication checks
   const initializeAuth = useCallback(() => {
@@ -40,6 +40,7 @@ function App() {
   useEffect(() => {
     initializeAuth();
     checkTicketAuthUser();
+    checkTicketUser();
   }, [initializeAuth]);
 
   return (
@@ -75,7 +76,17 @@ function App() {
         {/* UserMainContent */}
         <Route
           path="/user"
-          element={ticket ? <UserContent /> : <Navigate to="/userpage" />}
+          element={
+            authUser ? (
+              ticket ? (
+                <UserContent />
+              ) : (
+                <Navigate to="/userpage" />
+              )
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         >
           <Route index path="profile" element={<UserProfile />} />
           <Route path="ticket" element={<UserMainContent />} />
@@ -140,8 +151,10 @@ function App() {
           path="/userpage"
           element={
             authUser?.role === "client" ? (
-              ticket ? (
-                <Navigate to="/user" />
+              ticket?.status === "waiting" ||
+              ticket?.status === "In Progress" ||
+              ticket?.status === "On Hold" ? (
+                <Navigate to="/user/ticket" />
               ) : (
                 <User />
               )

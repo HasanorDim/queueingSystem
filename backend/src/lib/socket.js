@@ -27,6 +27,14 @@ io.on("connection", (socket) => {
 
   //   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
+  socket.on("breakTimeStatus", (status) => {
+    io.emit("updateBreakTime", status); // Broadcast to all clients
+  });
+
+  socket.on("statusUpdated", (status) => {
+    io.emit("updateStatus", status);
+  });
+
   socket.on("disconnect", () => {
     console.log("A user disconnected: ", socket.id);
     delete userSocketMap[userId];

@@ -12,6 +12,7 @@ export const useWindowStore = create((set, get) => ({
   windowTicket: null,
   isWindowUpdate: false,
   dataInProgress: null,
+  windowTicketInQueue: null,
   isUpdated: false,
 
   getWindowDetails: async () => {
@@ -65,6 +66,28 @@ export const useWindowStore = create((set, get) => ({
         .filter((x) => x.window.status === "In Progress");
 
       set({ dataInProgress: formattedUsers });
+    } catch (error) {
+      console.log("Error in getTicketWindows ", error);
+      toast.error(
+        error.response?.data.message || "Failed to get window details"
+      );
+    }
+  },
+
+  getTicketInQueueWindow: async () => {
+    try {
+      const { windowId } = get();
+      if (!windowId) return;
+      const response = await axiosInstance.get(
+        `/window/inqueue-number/${windowId}`
+      );
+
+      const sorted = orderBy(
+        [...response.data],
+        [(item) => Number(item.window.ticket_number)], // Convert to Number
+        ["asc"]
+      );
+      set({ windowTicketInQueue: sorted });
     } catch (error) {
       console.log("Error in getTicketWindows ", error);
       toast.error(

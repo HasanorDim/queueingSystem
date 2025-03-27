@@ -23,7 +23,7 @@ const EditWindow = ({
         <div className="flex flex-col gap-4 p-6">
           {/* Input for Counter Name */}
           <div className="w-full max-w-sm min-w-[200px]">
-            <label className="block mb-2 text-sm text-slate-600">
+            <label className="block mb-2 text-sm text-pink-700 font-semibold">
               Counter Name
             </label>
             <input
@@ -42,7 +42,7 @@ const EditWindow = ({
 
           {/* Input for Assign Staff Name */}
           <div className="w-full max-w-sm min-w-[200px]">
-            <label className="block mb-2 text-sm text-slate-600">
+            <label className="block mb-2 text-sm text-pink-700 font-semibold">
               Assign Staff Name
             </label>
             <input
@@ -69,7 +69,7 @@ const EditWindow = ({
             onClick={() => document.getElementById(modalId).close()}
           >
             {" "}
-            Edit Window
+            Save Changes
           </button>
         </div>
 

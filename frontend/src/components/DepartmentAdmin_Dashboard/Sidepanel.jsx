@@ -6,7 +6,7 @@ const Sidebar = () => {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   return (
-    <div className="h-screen w-64 bg-gradient-to-b from-pink-500 to-pink-700 text-white px-5 pt-5 fixed md:relative">
+    <div className="bg-gradient-to-b h-screen text-white w-64 fixed from-pink-500 md:relative pt-5 px-5 to-pink-700">
       {/* Branding */}
       <a href="/admin/dashboard" className="flex flex-col items-center">
         <div className="text-3xl font-bold">Queueing</div>
@@ -17,12 +17,12 @@ const Sidebar = () => {
 
       <ul>
         {/* Dashboard Link */}
-        <li className="px-4 py-2 hover:bg-pink-600 transition">
+        <li className="hover:bg-pink-600 px-4 py-2 transition">
           <NavLink
             to="/department-dashboard"
             className="flex items-center space-x-2"
           >
-            <i className="fas fa-tachometer-alt"></i>
+            <i className="fa-tachometer-alt fas"></i>
             <span>Dashboard</span>
           </NavLink>
         </li>
@@ -30,18 +30,18 @@ const Sidebar = () => {
         <hr className="border-white/30 my-2" />
 
         {/* Interface Section */}
-        <div className="px-4 text-xs uppercase font-semibold tracking-wider">
+        <div className="text-xs font-semibold px-4 tracking-wider uppercase">
           Interface
         </div>
 
         {/* Manage Queues Dropdown */}
         <li className="mt-2">
           <button
-            className="w-full flex items-center justify-between px-4 py-2 hover:bg-pink-600 transition ease-in-out duration-300"
+            className="flex justify-between w-full duration-300 ease-in-out hover:bg-pink-600 items-center px-4 py-2 transition"
             onClick={() => setQueueDropdownOpen(!queueDropdownOpen)}
           >
             <div className="flex items-center space-x-2">
-              <i className="fas fa-walking"></i>
+              <i className="fa-walking fas"></i>
               <span>Overview Queues</span>
             </div>
             <i
@@ -82,7 +82,7 @@ const Sidebar = () => {
                   }`
                 }
               >
-                Windows
+                Windows | Office
               </NavLink>
             </li>
           </ul>
@@ -91,11 +91,11 @@ const Sidebar = () => {
         {/* Manage Users Dropdown */}
         <li className="mt-2">
           <button
-            className="w-full flex items-center justify-between px-4 py-2 hover:bg-pink-600 transition ease-in-out duration-300"
+            className="flex justify-between w-full duration-300 ease-in-out hover:bg-pink-600 items-center px-4 py-2 transition"
             onClick={() => setUserDropdownOpen(!userDropdownOpen)}
           >
-            <div className="flex items-center space-x-2 gap-2">
-              <i className="fas fa-users w-2"></i>
+            <div className="flex gap-2 items-center space-x-2">
+              <i className="w-2 fa-users fas"></i>
               <span>Mnge Department</span>
             </div>
             <i

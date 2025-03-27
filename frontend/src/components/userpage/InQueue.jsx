@@ -3,24 +3,20 @@ import { useTicketStore } from "../../store/useTicketStore";
 import { useWindowStore } from "../../store/useWindowStore";
 import YourTurnMessage from "./YourTurnMessage";
 import { useAuthStore } from "../../store/useAuthStore";
+import TicketVoided from "./TicketVoided";
+import TicketTimer from "./TicketTimer";
 
 const InQueue = () => {
   const { socket } = useAuthStore();
-  const { checkTicketAuthUser, ticket, getTicket } = useTicketStore();
+  const { ticket } = useTicketStore();
   const {
     setWindow,
     getTicketWindows,
     windowTicket,
     unsubscribeNewTicketWindows,
     subscribeNewTicketWindows,
-    isUpdated,
   } = useWindowStore();
   const [queueData, setQueueData] = useState([]);
-
-  useEffect(() => {
-    checkTicketAuthUser();
-    getTicket();
-  }, [isUpdated]);
 
   useEffect(() => {
     subscribeNewTicketWindows();
@@ -59,7 +55,17 @@ const InQueue = () => {
       </div>
 
       <div className="overflow-y-auto max-h-[400px] p-4 space-y-3">
-        {ticket?.status === "In Progress" && <YourTurnMessage />}{" "}
+        {ticket.status === "waiting" ? (
+          ""
+        ) : ticket.status === "In Progress" ? (
+          <YourTurnMessage />
+        ) : ticket.status === "On Hold" ? (
+          <TicketTimer />
+        ) : ticket.status === "void" ? (
+          <TicketVoided />
+        ) : (
+          ""
+        )}{" "}
         {/* Show message if it's the user's turn */}
         {queueData.length > 0 ? (
           queueData.map((window, index) => {
@@ -69,15 +75,19 @@ const InQueue = () => {
               <div
                 key={window.window.id}
                 className={`flex flex-col sm:flex-row items-center sm:justify-between p-4 rounded-lg border shadow-sm transition hover:shadow-md ${
-                  isUserTicket
+                  ticket.status === "void" && isUserTicket
+                    ? "bg-gray-400 text-gray-200 line- line-through"
+                    : isUserTicket
                     ? "bg-green-100 border-green-300 sticky bottom-0"
                     : "bg-white border-gray-200 hover:border-pink-300"
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className={`w-10 h-10 flex items-center justify-center font-bold rounded-full shadow-md ${
-                      isUserTicket
+                    className={`w-10 h-10 flex items-center justify-center font-bold rounded-full shadow-md transition-all duration-500 ${
+                      ticket.status === "void" && isUserTicket
+                        ? "bg-gray-400 text-gray-200 line- line-through"
+                        : isUserTicket
                         ? "bg-green-500 text-white"
                         : "bg-pink-500 text-white"
                     }`}

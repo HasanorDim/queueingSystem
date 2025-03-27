@@ -6,18 +6,14 @@ import Navbar from "./Navbar";
 import YourTurnMessage from "./YourTurnMessage";
 import { useWindowStore } from "../../store/useWindowStore";
 import { useAuthStore } from "../../store/useAuthStore";
+import TicketVoided from "./TicketVoided";
+import TicketTimer from "./TicketTimer";
 
 const UserTicket = () => {
-  const { getTicket, checkTicketAuthUser, ticket } = useTicketStore();
-  const { selectedDepartment } = useDepartmentStore();
-  const { isUpdated, subscribeNewTicketWindows, unsubscribeNewTicketWindows } =
+  const { ticket } = useTicketStore();
+  const { subscribeNewTicketWindows, unsubscribeNewTicketWindows } =
     useWindowStore();
   const { socket } = useAuthStore();
-
-  useEffect(() => {
-    checkTicketAuthUser();
-    getTicket();
-  }, [isUpdated]);
 
   useEffect(() => {
     subscribeNewTicketWindows();
@@ -25,9 +21,9 @@ const UserTicket = () => {
   }, [socket]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full w-full p-4">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md border border-blue-500 text-center">
-        <h2 className="text-xl font-bold text-gray-800 mb-2">
+    <div className="flex flex-col h-full justify-center p-4 w-full items-center">
+      <div className="bg-white border border-blue-500 p-6 rounded-lg shadow-lg text-center w-full max-w-md">
+        <h2 className="text-gray-800 text-xl font-bold mb-2">
           🎟️ Your Ticket Status
         </h2>
 
@@ -35,7 +31,7 @@ const UserTicket = () => {
           ticket.status === "completed" ? (
             // ✅ Completed Ticket UI
             <div>
-              <h1 className="text-3xl font-bold text-green-600">
+              <h1 className="text-3xl text-green-600 font-bold">
                 Ticket Completed 🎉
               </h1>
               <p className="text-gray-600 mt-2">
@@ -49,26 +45,34 @@ const UserTicket = () => {
                 className={
                   ticket.status === "waiting"
                     ? "text-3xl font-bold text-pink-500"
-                    : "text-3xl font-bold text-green-500"
+                    : ""
                 }
               >
-                {ticket.status === "waiting" ? "In Queue" : <YourTurnMessage />}{" "}
+                {ticket.status === "waiting" ? (
+                  "In Queue"
+                ) : ticket.status === "In Progress" ? (
+                  <YourTurnMessage />
+                ) : ticket.status === "On Hold" ? (
+                  <TicketTimer />
+                ) : ticket.status === "void" ? (
+                  <TicketVoided />
+                ) : null}{" "}
               </h1>
 
-              <div className="mt-4 text-gray-600 text-sm">Queue Number</div>
-              <div className="text-5xl font-extrabold text-blue-600">
+              <div className="text-gray-600 text-sm mt-4">Queue Number</div>
+              <div className="text-5xl text-blue-600 font-extrabold">
                 {ticket.ticket_number}
               </div>
 
-              <div className="mt-2 text-gray-500 text-sm">
+              {/* <div className="text-gray-500 text-sm mt-2">
                 <strong>Department:</strong> {ticket?.service_type || "N/A"}
-              </div>
-              <div className="mt-2 text-gray-500 text-sm">
-                <strong>Counter:</strong> {ticket?.window_number || "N/A"}
+              </div> */}
+              <div className="text-gray-500 text-sm mt-2">
+                <strong>Counter Name:</strong> {ticket?.service_type || "N/A"}
               </div>
 
               {/* ✅ Status Badge */}
-              <div className="mt-2 text-gray-500 text-sm">
+              <div className="text-gray-500 text-sm mt-2">
                 <strong>Status:</strong>
                 <span
                   className={`ml-1 px-2 py-1 rounded ${
@@ -84,7 +88,7 @@ const UserTicket = () => {
               </div>
 
               {/* ✅ Issued At */}
-              <div className="mt-2 text-gray-600 text-sm">
+              <div className="text-gray-600 text-sm mt-2">
                 <strong>Issued at:</strong>{" "}
                 {formatMessageDate(ticket.issued_at)} {" || "}
                 {formatMessageTime(ticket.issued_at)}
@@ -92,7 +96,7 @@ const UserTicket = () => {
 
               {/* ✅ Refresh Button */}
               {/* <button
-                className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-semibold shadow-md hover:bg-blue-700 transition"
+                className="bg-blue-600 rounded-lg shadow-md text-sm text-white w-full font-semibold hover:bg-blue-700 mt-4 py-2 transition"
                 onClick={handleRefresh}
               >
                 Refresh Status

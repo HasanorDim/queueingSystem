@@ -12,7 +12,7 @@ import { broadcastTableWindowUpdate } from "../functions/socket.helper.js";
 dotenv.config();
 
 export const requestTicket = async (req, res) => {
-  const { number, service_type, status, windowId } = req.body;
+  const { service_type, status, windowId } = req.body;
   const { id: userID } = req.user;
 
   const connection = await pool.getConnection();
@@ -34,7 +34,7 @@ export const requestTicket = async (req, res) => {
       userID,
       service_type,
       status,
-      windowId, // First SELECT
+      windowId,
     ]);
 
     const selectQuery = `SELECT * FROM window_tickettb WHERE id = ?`;
@@ -227,7 +227,7 @@ export const getAllTickets = async (req, res) => {
       LEFT JOIN users u ON wt.user_id = u.id
       WHERE sw.department_id = ?;
     `;
-    const [rows] = await connection.execute(query, [rowsUser[0].department_id]);
+    const [rows] = await connection.execute(query, [user.department_id]);
 
     const counter = `SELECT * FROM service_windowtb WHERE department_id = ?`;
     const [windows] = await connection.execute(counter, [
@@ -344,6 +344,37 @@ export const nextWindow = async (req, res) => {
     await connection.rollback();
     console.log("Error in get all tickets ", error);
     return res.status(500).json({ message: "Server error" });
+  } finally {
+    connection.release();
+  }
+};
+
+export const notPresent = async (req, res) => {
+  const connection = await pool.getConnection();
+  await connection.beginTransaction();
+
+  try {
+    const { ticketId, status } = req.body;
+    const updateQuery = `UPDATE window_tickettb SET status = ?, called_at = NOW() WHERE id = ?`;
+    const [result] = await connection.execute(updateQuery, [status, ticketId]);
+
+    const selectQuery = "SELECT * FROM window_tickettb WHERE id = ?";
+    const [rows] = await connection.execute(selectQuery, [ticketId]);
+
+    const data = rows[0];
+
+    const calledAtTimestamp = new Date(data.called_at).getTime();
+    io.emit("ticketCalled", { ticketId, calledAt: calledAtTimestamp });
+    if (result.affectedRows === 0) {
+      throw new Error("No ticket found with the given ID");
+    }
+
+    await connection.commit();
+    res.status(201).json(); // 204: No Content
+  } catch (error) {
+    await connection.rollback();
+    console.error("Error updating ticket status:", error);
+    res.status(500).json({ message: "Server error" });
   } finally {
     connection.release();
   }

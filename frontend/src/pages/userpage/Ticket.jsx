@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Window from "../../components/usermodal/Window";
 import toast from "react-hot-toast";
 import { useAuthStore } from "../../store/useAuthStore";
+import CutOff from "../../components/usermodal/CutOff";
 
 const Ticket = () => {
   const navigate = useNavigate();
@@ -17,20 +18,19 @@ const Ticket = () => {
     unsubscribeToTicket,
   } = useTicketStore();
   const { serviceWindows, setSelectedDepartment } = useDepartmentStore();
-
   const { socket } = useAuthStore();
+  const { isCutOff } = useTicketStore();
 
-  const [isModalOpen, setIsModalOpen] = useState(true); // Show modal initially
+  const [isModalOpen, setIsModalOpen] = useState(true);
   const [formData, setFormData] = useState({
     number: 0,
-    // department_id: selectedDepartment,
     windowId:
       (serviceWindows.window || []).length > 0
         ? serviceWindows.window[0].id
         : "",
     status: "waiting",
     service_type: "",
-    window_number: null, // Track the selected window
+    window_number: null,
   });
   useEffect(() => {
     subscribeToTicket();
@@ -40,12 +40,14 @@ const Ticket = () => {
   useEffect(() => {
     const departmentId = localStorage.getItem("departmentId");
     setSelectedDepartment(departmentId);
-    // getNewestNumber(
-    //   (serviceWindows.window || []).length > 0
-    //     ? serviceWindows.window[0].id
-    //     : ""
-    // );
   }, []);
+
+  useEffect(() => {
+    if (serviceWindows?.window.length === 1) {
+      handleSelectWindow(serviceWindows.window[0]);
+      getNewestNumber(serviceWindows.window[0].id);
+    }
+  }, [serviceWindows]);
 
   const handleSelectWindow = (window) => {
     setFormData((prev) => ({
@@ -80,15 +82,22 @@ const Ticket = () => {
       toast.error("Failed to add ticket. Please try again.");
     }
   };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       {/* Window Selection Modal */}
-      <Window
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSelect={handleSelectWindow}
-        serviceWindows={serviceWindows}
-      />
+      {isCutOff ? (
+        <CutOff />
+      ) : (
+        serviceWindows?.window.length > 1 && (
+          <Window
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSelect={handleSelectWindow}
+            serviceWindows={serviceWindows}
+          />
+        )
+      )}
 
       <form onSubmit={handleSubmit}>
         <div className="bg-white rounded-2xl shadow-lg p-6 w-80 text-center border-2 border-blue-500">

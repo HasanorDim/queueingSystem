@@ -149,12 +149,12 @@ const Department = ({ modalId, onEditChange }) => {
           modalId={modalId}
           formData={formData}
           setFormData={setFormData}
-          counters={counters}
-          setCounters={setCounters}
-          newCounterName={newCounterName}
-          setNewCounterName={setNewCounterName}
+          // counters={counters}
+          // setCounters={setCounters}
+          // newCounterName={newCounterName}
+          // setNewCounterName={setNewCounterName}
           handleSubmit={handleSubmit}
-          handleAddCounter={handleAddCounter}
+          // handleAddCounter={handleAddCounter}
         />
       )}
     </dialog>

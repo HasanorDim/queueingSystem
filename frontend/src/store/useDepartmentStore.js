@@ -9,7 +9,8 @@ export const useDepartmentStore = create((set, get) => ({
   selectedUser: null,
   selectedDepartment: null,
   serviceWindows: [],
-  departmentCount: 0,
+  referenceCount: null,
+  reqUserDepartment: null,
 
   addDepartment: async (data) => {
     try {
@@ -75,10 +76,8 @@ export const useDepartmentStore = create((set, get) => ({
 
   deleteDepartment: async (departmentId) => {
     try {
-      const { departments } = get();
-
       await axiosInstance.delete(`/department/delete/${departmentId}`);
-
+      const { departments } = get();
       const index = departments.findIndex((d) => d.id === departmentId);
       if (index === -1) return;
 
@@ -115,23 +114,6 @@ export const useDepartmentStore = create((set, get) => ({
     }
   },
 
-  // setEditCounter: async (data) => {
-  //   try {
-  //     const { departments } = get();
-  //     const departmentId = departments.id;
-  //     const response = await axiosInstance.put(
-  //       `/edit-counter/${departmentId}`,
-  //       data
-  //     );
-  //   } catch (error) {
-  //     console.log("Error in setEditCounter: ", error);
-  //     toast.error(
-  //       error.response.data.message ||
-  //         "Failed to set edit counter setEditCounter"
-  //     );
-  //   }
-  // },
-
   setSelectedUser: async (selectedUser) => {
     set({ selectedUser });
   },
@@ -158,20 +140,44 @@ export const useDepartmentStore = create((set, get) => ({
 
   setUserDepartment: async (data) => {
     try {
+      console.log("Data: ", data);
       const { selectedUser } = get();
-      console.log("setUserDepartment: ", selectedUser);
       if (!selectedUser) return;
       await axiosInstance.post(
         `/department/set-department-user/${selectedUser.id}`,
         data
       );
       toast.success("Department's user set successfully");
+      return { email: "", password: "", confirmpass: "" };
     } catch (error) {
       console.log("Error in setUserDepartment", error);
       toast.error(
         error.response?.data?.message ||
           "Failed to set user's setUserDepartment"
       );
+    }
+  },
+
+  getUserDepartment: async () => {
+    try {
+      const response = await axiosInstance.get("/department/deptuser");
+      set({ reqUserDepartment: response.data });
+    } catch (error) {
+      console.log("Error in getUserDepartment", error);
+      toast.error(
+        // error.response?.data?.message ||
+        "Failed to set user's setUserDepartment123"
+      );
+    }
+  },
+
+  getDepartmenthelperfunctions: async () => {
+    try {
+      const response = await axiosInstance.get("/department/helper");
+      set({ referenceCount: response.data });
+    } catch (error) {
+      console.log("Error in getDepartmenthelperfunctions ", error);
+      toast.error(error.response?.data?.message || "Failed to fetch Data");
     }
   },
 }));

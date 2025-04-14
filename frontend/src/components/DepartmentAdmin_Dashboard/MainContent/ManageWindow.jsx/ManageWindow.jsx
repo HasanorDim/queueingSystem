@@ -33,12 +33,17 @@ const ManageWindow = () => {
               key={counter.id}
               className="bg-pink-50 rounded-xl p-10 border border-pink-300 transition hover:shadow-2xl"
             >
-              <h3 className="text-2xl font-bold text-pink-800 mb-2">
+              {/* <h3 className="text-2xl font-bold text-pink-800 mb-2">
                 Counter #{counter.window_number}
-              </h3>
-              <h2 className="text-xl font-bold text-pink-800 mb-4">
+              </h3> */}
+
+              <h3 className="text-2xl font-bold text-pink-800 mb-2">
                 {counter.service_type}
-              </h2>
+              </h3>
+
+              {/* <h2 className="text-xl font-bold text-pink-800 mb-4">
+                {counter.service_type}
+              </h2> */}
               <p className="text-pink-700 mt-1">
                 🎟 Tickets:{" "}
                 <span className="font-bold">
@@ -71,22 +76,27 @@ const ManageWindow = () => {
                       setSelectedWindow(counter.id);
                     },
                   },
-                  {
-                    label: "",
-                    icon: <QrCode className="w-4" />,
-                    onClick: () => {
-                      // document.getElementById("Modal_Window").showModal()
-                    },
-                  },
-                ].map((btn, index) => (
-                  <button
-                    key={index}
-                    onClick={btn.onClick}
-                    className="flex gap-2 bg-pink-500 hover:bg-pink-600 text-white rounded-lg shadow-md transition items-center justify-center px-4 py-2"
-                  >
-                    {btn.icon} {btn.label}
-                  </button>
-                ))}
+                ].map((btn, index) =>
+                  allTickets?.windows.length <= 1 ? (
+                    btn.label !== "Delete" ? (
+                      <button
+                        key={index}
+                        onClick={btn.onClick}
+                        className="flex gap-2 bg-pink-500 hover:bg-pink-600 text-white rounded-lg shadow-md transition items-center justify-center px-4 py-2"
+                      >
+                        {btn.icon} {btn.label}
+                      </button>
+                    ) : null
+                  ) : (
+                    <button
+                      key={index}
+                      onClick={btn.onClick}
+                      className="flex gap-2 bg-pink-500 hover:bg-pink-600 text-white rounded-lg shadow-md transition items-center justify-center px-4 py-2"
+                    >
+                      {btn.icon} {btn.label}
+                    </button>
+                  )
+                )}
               </div>
             </div>
           ))}

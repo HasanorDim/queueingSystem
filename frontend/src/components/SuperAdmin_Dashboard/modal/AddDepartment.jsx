@@ -5,12 +5,7 @@ const AddDepartment = ({
   modalId, // Add modalId prop
   formData,
   setFormData,
-  counters,
-  setCounters,
-  newCounterName,
-  setNewCounterName,
   handleSubmit,
-  handleAddCounter,
 }) => {
   return (
     <div className="modal-box overflow-hidden overflow-y-auto">

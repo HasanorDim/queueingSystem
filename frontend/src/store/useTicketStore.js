@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 import { useAuthStore } from "./useAuthStore";
+import { data } from "react-router-dom";
 
 export const useTicketStore = create((set, get) => ({
   authTicket: null,
@@ -19,6 +20,9 @@ export const useTicketStore = create((set, get) => ({
   calledTicket: null,
   remainingTime: 0,
   intervalId: null,
+  voidedTickets: [],
+  ticketCount: null,
+  otherData: null,
 
   checkTicketAuthUser: async () => {
     try {
@@ -37,9 +41,7 @@ export const useTicketStore = create((set, get) => ({
   checkTicketUser: async () => {
     try {
       const response = await axiosInstance.get("/ticket/checkUserTicket");
-      if (response.data) {
-        set({ ticket: response.data });
-      }
+      set({ ticket: response.data });
     } catch (error) {
       console.log("Error in checkTicketAuth: ", error);
       toast.error(
@@ -85,10 +87,27 @@ export const useTicketStore = create((set, get) => ({
     }
   },
 
+  setTotalTicketByDepartments: async () => {
+    try {
+      const response = await axiosInstance.get(
+        "/ticket/all-tickets-by-departments"
+      );
+      set({
+        totalTickets: response.data.rows,
+        ticketCount: response.data.resultCount,
+      });
+    } catch (error) {
+      console.log("Error in getTotalTicket", error);
+      toast.error(error.response.data.message || "Failed to get total ticket");
+    }
+  },
+
   setTotalTicket: async () => {
     try {
       const response = await axiosInstance.get("/ticket/all-tickets");
-      set({ totalTickets: response.data });
+      set({
+        totalTickets: response.data,
+      });
     } catch (error) {
       console.log("Error in getTotalTicket", error);
       toast.error(error.response.data.message || "Failed to get total ticket");
@@ -150,7 +169,7 @@ export const useTicketStore = create((set, get) => ({
         socket.emit("statusUpdated", !isStatusUpdated);
       }
 
-      toast.success("Ticket in progress");
+      toast.success("User Called!");
     } catch (error) {
       console.log("Error in addWindow", error);
       toast.error("Failed to update Ticket Status");
@@ -184,10 +203,35 @@ export const useTicketStore = create((set, get) => ({
     }
   },
 
+  getVoidedTickets: async () => {
+    try {
+      const response = await axiosInstance.post("/ticket/voided"); // Adjust endpoint as needed
+      set({ voidedTickets: response.data });
+    } catch (error) {
+      console.error("Error fetching voided tickets:", error);
+    }
+  },
+
+  getOtherData: async () => {
+    try {
+      const response = await axiosInstance.get("/ticket/getFunction");
+      set({ otherData: response.data });
+    } catch (error) {
+      console.log("Error in get Other Data", error);
+    }
+  },
+
+  getOtherDataSuper: async () => {
+    try {
+      const response = await axiosInstance.get("/ticket/getFunctionSuper");
+      set({ otherData: response.data });
+    } catch (error) {
+      console.log("Error in get Other Data", error);
+    }
+  },
+
   releodTime: async () => {
     const { ticket, intervalId } = get();
-
-    console.log("Ticket: ", ticket);
 
     // Clear the existing interval if it exists
     if (intervalId) {

@@ -26,10 +26,11 @@ import LoadingScreen from "./components/Loader/LoadingScreen";
 import UserContent from "./pages/userpage/UserContent";
 import UserMainContent from "./components/userpage/UserMainContent";
 import UserProfile from "./components/userpage/UserProfile";
+import CreateUserDepartment from "./components/SuperAdmin_Dashboard/MainContent/CreateUserDepartment";
 
 function App() {
   const { authUser, checkAuth } = useAuthStore();
-  const { checkTicketUser, ticket, checkTicketAuthUser } = useTicketStore();
+  const { checkTicketUser, ticket } = useTicketStore();
 
   // ✅ Memoize authentication checks
   const initializeAuth = useCallback(() => {
@@ -39,9 +40,8 @@ function App() {
   // ✅ Run only once when the component mounts
   useEffect(() => {
     initializeAuth();
-    checkTicketAuthUser();
     checkTicketUser();
-  }, [initializeAuth]);
+  }, []);
 
   return (
     <div>
@@ -71,8 +71,9 @@ function App() {
 
         <Route
           path="/ticket"
-          element={authUser ? <Ticket /> : <Navigate to="/userpage" />}
+          element={authUser ? <Ticket /> : <Navigate to="/login" />}
         />
+
         {/* UserMainContent */}
         <Route
           path="/user"
@@ -91,22 +92,6 @@ function App() {
           <Route index path="profile" element={<UserProfile />} />
           <Route path="ticket" element={<UserMainContent />} />
         </Route>
-
-        {/* <Route
-          path="/ticket"
-          element={authUser ? <Ticket /> : <Navigate to="/userpage" />}
-        > */}
-        {/* <Route
-            path="UserTicket"
-            element={authUser ? <UserTicket /> : <Navigate to="/login" />}
-          /> */}
-        {/* UserContent */}
-        {/* <Route
-            path="user"
-            // element={authTicket ? <Ticket /> : <Navigate to="/userpage" />}
-            element={<Ticket />}
-          /> */}
-        {/* </Route> */}
 
         {/* Super Admin */}
         <Route
@@ -133,10 +118,19 @@ function App() {
         >
           <Route index element={<SystemOverview />} />
           <Route path="organization-units" element={<OrganizationUnits />} />
+          <Route
+            path="set-user-department"
+            element={<CreateUserDepartment />}
+          />
         </Route>
 
         {/* Department Admin */}
-        <Route path="/department-dashboard" element={<DepartmentDashboard />}>
+        <Route
+          path="/department-dashboard"
+          element={
+            authUser ? <DepartmentDashboard /> : <Navigate to="/login" />
+          }
+        >
           <Route index element={<Main />} />
           <Route path="ticket-view" element={<ViewTicket />} />
           <Route path="windows" element={<Window />} />

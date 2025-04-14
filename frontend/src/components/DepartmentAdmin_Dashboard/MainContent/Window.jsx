@@ -9,6 +9,7 @@ const Window = () => {
 
   useEffect(() => {
     getAllTickets();
+    console.log("groupWindows: ", groupWindows);
   }, [isWindowUpdate]);
 
   return (
@@ -34,9 +35,9 @@ const Window = () => {
 const Card = ({ number, groupWindows }) => {
   return (
     <div className="bg-pink-50 rounded-xl p-16 border border-pink-300 transition hover:shadow-2xl">
-      <h3 className="text-2xl font-bold text-pink-800 mb-2">
+      {/* <h3 className="text-2xl font-bold text-pink-800 mb-2">
         Counter #{number.window_number}
-      </h3>
+      </h3> */}
       <h2 className="text-xl font-bold text-pink-800 mb-4">
         {number.service_type}
       </h2>

@@ -2,6 +2,9 @@ import express from "express";
 import {
   checkAuth,
   getAllTickets,
+  getFunction,
+  getFunctionSuper,
+  getVoided,
   newestNumber,
   nextWindow,
   notPresent,
@@ -9,6 +12,7 @@ import {
   setAuth,
   ticketStatus,
   totalTickets,
+  totalTicketsByDepartments,
   // setAuth,
   userTicket,
 } from "../controller/ticket.js";
@@ -26,8 +30,16 @@ router.get("/user", protectUserTicketRoute, userTicket);
 router.get("/setAuth/:departmentId", setAuth);
 router.get("/checkUserTicket", protectRoute, checkUserTicket);
 router.get("/newestNumber/:windowId", newestNumber);
+router.get(
+  "/all-tickets-by-departments",
+  protectRoute,
+  totalTicketsByDepartments
+);
 router.get("/all-tickets", totalTickets);
 router.get("/department-tickets", protectRoute, getAllTickets);
+router.get("/voided", protectRoute, getVoided);
+router.get("/getFunction", protectRoute, getFunction);
+router.get("/getFunctionSuper", protectRoute, getFunctionSuper);
 
 router.post("/add", protectRoute, requestTicket);
 router.post("/status", ticketStatus);

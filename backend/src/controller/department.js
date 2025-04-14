@@ -1,7 +1,12 @@
 import pool from "../config/db.js";
+import QRCode from "qrcode";
 import { v4 as uuidv4 } from "uuid"; // For generating UUIDs
 import { fetchDepartment } from "../functions/fetchDepartment.js";
 import bcrypt from "bcryptjs";
+import {
+  departmentCount,
+  getAverageProcessTime,
+} from "../functions/Super.getFunction.js";
 
 export const getWindow = async (req, res) => {
   const { departmentId } = req.params;
@@ -49,7 +54,7 @@ export const getWindow = async (req, res) => {
 };
 
 export const addDepartment = async (req, res) => {
-  const { name, description, counters } = req.body;
+  const { name, description } = req.body;
 
   const connection = await pool.getConnection();
   await connection.beginTransaction(); // Start a transaction
@@ -57,24 +62,32 @@ export const addDepartment = async (req, res) => {
     // Step 1: Generate a UUID for the new department
     const departmentId = uuidv4();
 
+    const qrData = `department_id=${departmentId}`;
+    const qrCodeUrl = await QRCode.toDataURL(qrData);
+
     // Step 2: Insert the department with the pre-generated UUID
     const insertQuery = `
-      INSERT INTO departments (id, name, description)
-      VALUES (?, ?, ?)
+      INSERT INTO departments (id, name, description, qr_code)
+      VALUES (?, ?, ?, ?)
     `;
-    await connection.execute(insertQuery, [departmentId, name, description]);
+    await connection.execute(insertQuery, [
+      departmentId,
+      name,
+      description,
+      qrCodeUrl,
+    ]);
 
-    counters.map(async (item, index) => {
-      const insertsql = `INSERT INTO service_windowtb (id, department_id, service_type, window_number)
-        VALUES (?, ?, ?, ?)`;
+    const windowId = Date.now();
 
-      await connection.execute(insertsql, [
-        item.id,
-        departmentId,
-        item.name,
-        index + 1,
-      ]);
-    });
+    const insertsql = `INSERT INTO service_windowtb (id, department_id, service_type, window_number, staff_name)
+        VALUES (?, ?, ?, ?, ?)`;
+    await connection.execute(insertsql, [
+      windowId,
+      departmentId,
+      "Default service",
+      1,
+      "Default staff_name",
+    ]);
 
     // Step 3: Retrieve the inserted department using the UUID
     const selectQuery = `
@@ -102,7 +115,7 @@ export const addDepartment = async (req, res) => {
 };
 
 export const editDepartment = async (req, res) => {
-  const { id, name, description, counters } = req.body;
+  const { id, name, description } = req.body;
 
   const connection = await pool.getConnection();
   await connection.beginTransaction(); // Start a transaction
@@ -117,39 +130,11 @@ export const editDepartment = async (req, res) => {
       `;
       await connection.execute(updateQuery, [name, description, id]);
 
-      // ✅ Remove existing counters for this department (Optional: if you want to replace them)
-      await connection.execute(
-        `DELETE FROM service_windowtb WHERE department_id = ?`,
-        [id]
-      );
-
-      // ✅ Insert updated counters
-      if (counters && counters.length > 0) {
-        const insertCounterQuery = `
-          INSERT INTO service_windowtb (id, service_type, department_id, window_number) VALUES ?
-        `;
-
-        // Prepare counter values as an array of arrays
-        const counterValues = counters.map((counter, index) => [
-          counter.id,
-          counter.name,
-          id,
-          index + 1,
-        ]);
-
-        await connection.query(insertCounterQuery, [counterValues]);
-      }
-
       // ✅ Fetch updated department with counters
       const [updatedDepartment] = await connection.execute(
         "SELECT * FROM departments WHERE id = ?",
         [id]
       );
-
-      // const [updatedCounters] = await connection.execute(
-      //   "SELECT * FROM counter WHERE department_id = ?",
-      //   [id]
-      // );
 
       await connection.commit();
       return res.status(200).json({
@@ -199,14 +184,14 @@ export const deleteDepartment = async (req, res) => {
   const connection = await pool.getConnection();
   try {
     const { departmentId } = req.params;
-
+    console.log("departments : ", departmentId);
     const deleteQuery = `
       DELETE FROM departments WHERE id =?
     `;
     await connection.execute(deleteQuery, [departmentId]);
 
     await connection.commit();
-    return res.status(204).json(); //204 means "No Content"
+    return res.status(200).json(); //204 means "No Content"
   } catch (error) {
     await connection.rollback();
     console.log("Error in delete Department", error);
@@ -234,7 +219,19 @@ export const setDepartmentUser = async (req, res) => {
       .json({ message: "Password must be at least 6 characters" });
 
   const connection = await pool.getConnection();
+  await connection.beginTransaction();
   try {
+    const [existingUser] = await connection.execute(
+      "SELECT * FROM users WHERE email = ?",
+      [email]
+    );
+
+    if (existingUser.length > 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email already exists" });
+    }
+
     const id = uuidv4();
 
     const trimmedPassword = password.trim();
@@ -243,20 +240,20 @@ export const setDepartmentUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(trimmedPassword, salt);
 
-    const [existingUser] = await connection.execute(
-      "SELECT id, password FROM users WHERE email = ?",
-      [email]
-    );
-
-    if (existingUser.length > 0) {
-      return { success: false, message: "Email already exists" };
-    }
-
     // Insert user into MySQL database
     await connection.execute(
       "INSERT INTO users (id, email, password, role, department_id) VALUES (?, ?, ?, ?, ?)",
       [id, email, hashedPassword, "departmentadmin", departmentId]
     );
+
+    const updateQuery = `
+          UPDATE departments
+          SET has_user = ?
+          WHERE id = ?
+        `;
+    await connection.execute(updateQuery, [1, departmentId]);
+
+    await connection.commit();
 
     // await connection.commit();
     return res.status(201).json(); //204 means "No Content"
@@ -268,5 +265,38 @@ export const setDepartmentUser = async (req, res) => {
       .json({ message: "Internal server error in fetching department" });
   } finally {
     connection.release();
+  }
+};
+
+export const getUserDepartment = async (req, res) => {
+  const { department_id } = req.user;
+
+  const connection = await pool.getConnection();
+  try {
+    const [row] = await connection.execute(
+      "SELECT * FROM departments WHERE id = ?",
+      [department_id]
+    );
+    const data = row[0];
+    return res.status(200).json(data);
+  } catch (error) {
+    await connection.rollback();
+    console.log("Error in delete Department", error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error in fetching department" });
+  } finally {
+    connection.release();
+  }
+};
+
+export const helperDepartment = async (req, res) => {
+  try {
+    const window_count = await departmentCount();
+    const avg = await getAverageProcessTime();
+    return res.status(200).json({ window_count, avg });
+  } catch (error) {
+    console.log("Error in helper Department ", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };

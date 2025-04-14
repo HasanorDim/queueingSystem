@@ -8,6 +8,17 @@ import {
 } from "../lib/util.js";
 import { io } from "../lib/socket.js";
 import { broadcastTableWindowUpdate } from "../functions/socket.helper.js";
+import {
+  departmentAnalyticsSuper,
+  getAverageProcessTime,
+  getAverageProcessTimeSuper,
+  getTicketStats,
+  getTicketStatsSuper,
+  serviceDistribution,
+  serviceDistributionSuper,
+  userInThisMonth,
+} from "../functions/getFunctions.js";
+import { allTicketsCount } from "../functions/Super.getFunction.js";
 
 dotenv.config();
 
@@ -21,12 +32,26 @@ export const requestTicket = async (req, res) => {
   try {
     const ticketId = uuidv4();
 
+    //   const insertQuery = `
+    //     INSERT INTO window_tickettb (id, window_id, ticket_number, user_id, service_type, status)
+    //     SELECT ?, ?, COALESCE(MAX(ticket_number), 0) + 1, ?, ?, ?
+    //     FROM window_tickettb
+    //     WHERE window_id = ?;
+    // `;
+
+    const windowQuery =
+      "SELECT department_id FROM service_windowtb WHERE id = ?";
+    const [department_id] = await connection.execute(windowQuery, [windowId]);
+
+    const departmentId = department_id[0].department_id;
+
     const insertQuery = `
-      INSERT INTO window_tickettb (id, window_id, ticket_number, user_id, service_type, status)
-      SELECT ?, ?, COALESCE(MAX(ticket_number), 0) + 1, ?, ?, ?
+      INSERT INTO window_tickettb (id, window_id, ticket_number, user_id, service_type, status, department_id)
+      SELECT ?, ?, COALESCE(MAX(ticket_number), 0) + 1, ?, ?, ?, ?
       FROM window_tickettb
-      WHERE window_id = ?;
-  `;
+      WHERE window_id = ?
+        AND DATE(issued_at) = CURDATE();
+    `;
 
     await connection.execute(insertQuery, [
       ticketId,
@@ -34,6 +59,7 @@ export const requestTicket = async (req, res) => {
       userID,
       service_type,
       status,
+      departmentId,
       windowId,
     ]);
 
@@ -172,11 +198,18 @@ export const newestNumber = async (req, res) => {
   const windowId = req.params.windowId;
   const connection = await pool.getConnection();
   try {
+    //   const query = `
+    //   SELECT COALESCE(MAX(ticket_number), 0) + 1 AS max_ticket
+    //   FROM window_tickettb
+    //   WHERE window_id = ?;
+    // `;
+
     const query = `
-    SELECT COALESCE(MAX(ticket_number), 0) + 1 AS max_ticket
-    FROM window_tickettb 
-    WHERE window_id = ?;
-  `;
+      SELECT COALESCE(MAX(ticket_number), 0) + 1 AS max_ticket
+      FROM window_tickettb 
+      WHERE window_id = ?
+        AND DATE(issued_at) = CURDATE();
+    `;
 
     const [rows] = await connection.execute(query, [windowId]);
     await connection.commit();
@@ -195,16 +228,39 @@ export const totalTickets = async (req, res) => {
   const connection = await pool.getConnection();
   await connection.beginTransaction();
   try {
-    const query = `
-SELECT * FROM window_tickettb 
-  `;
-
-    const [rows] = await connection.execute(query);
-    await connection.commit();
-    return res.status(200).json(rows);
+    const result = await allTicketsCount();
+    return res.status(200).json(result);
   } catch (error) {
     await connection.rollback();
-    console.log("Error in newestNumber", error);
+    console.log("Error in totalTickets", error);
+    return res.status(500).json({ message: "Server error" });
+  } finally {
+    connection.release();
+  }
+};
+
+export const totalTicketsByDepartments = async (req, res) => {
+  const user = req.user;
+  const departmentId = user.department_id;
+
+  const connection = await pool.getConnection();
+  await connection.beginTransaction();
+  try {
+    const query = `SELECT * FROM window_tickettb WHERE department_id = ?`;
+
+    const [rows] = await connection.execute(query, [departmentId]);
+    await connection.commit();
+
+    // Count total by status
+    const resultCount = rows.reduce((acc, row) => {
+      acc[row.status] = (acc[row.status] || 0) + 1;
+      return acc;
+    }, {});
+
+    return res.status(200).json({ rows, resultCount });
+  } catch (error) {
+    await connection.rollback();
+    console.log("Error in totalTickets", error);
     return res.status(500).json({ message: "Server error" });
   } finally {
     connection.release();
@@ -220,13 +276,26 @@ export const getAllTickets = async (req, res) => {
     const queryUser = `SELECT department_id FROM users WHERE id = ?`;
     const [rowsUser] = await connection.execute(queryUser, [user.id]);
 
+    // const query = `
+    //   SELECT wt.*, sw.*, u.firstname, u.lastname
+    //   FROM window_tickettb wt
+    //   LEFT JOIN service_windowtb sw ON sw.id = wt.window_id
+    //   LEFT JOIN users u ON wt.user_id = u.id
+    //   WHERE sw.department_id = ?
+    //   AND wt.DATE(issued_at) = CURDATE()
+    //   AND wt.status != 'completed'
+    //   ;
+    // `;
     const query = `
       SELECT wt.*, sw.*, u.firstname, u.lastname
       FROM window_tickettb wt
       LEFT JOIN service_windowtb sw ON sw.id = wt.window_id
       LEFT JOIN users u ON wt.user_id = u.id
-      WHERE sw.department_id = ?;
+      WHERE sw.department_id = ?
+      AND DATE(wt.issued_at) = CURDATE()
+      AND wt.status != 'completed';
     `;
+
     const [rows] = await connection.execute(query, [user.department_id]);
 
     const counter = `SELECT * FROM service_windowtb WHERE department_id = ?`;
@@ -251,12 +320,49 @@ export const ticketStatus = async (req, res) => {
   try {
     const { ticketId, status } = req.body;
 
-    // Update ticket status
-    const updateQuery = `UPDATE window_tickettb SET status = ? WHERE id = ?`;
-    const [result] = await connection.execute(updateQuery, [status, ticketId]);
+    if (status === "completed") {
+      const currentTime = new Date();
 
-    if (result.affectedRows === 0) {
-      throw new Error("Ticket not found or no changes made.");
+      const selectQuery = `SELECT called_at FROM window_tickettb WHERE id = ?`;
+      const [ticket] = await connection.execute(selectQuery, [ticketId]);
+
+      if (ticket.length === 0) {
+        throw new Error("Ticket not found.");
+      }
+
+      // Parse the 'called_at' time from the database result
+      const calledAtTime = new Date(ticket[0].called_at);
+
+      // Calculate the time difference in minutes
+      const timeDifferenceInMinutes = (currentTime - calledAtTime) / 1000 / 60; // Convert from milliseconds to minutes
+
+      // Determine whether the ticket meets the SLA (20 minutes or less)
+      const metSla = timeDifferenceInMinutes <= 20;
+
+      // Update the 'met_sla' value based on the time difference
+      const updateQuery = `UPDATE window_tickettb SET status = ?, met_sla = ?, completed_at = NOW() WHERE id = ?`;
+      const [result] = await connection.execute(updateQuery, [
+        status,
+        metSla,
+        ticketId,
+      ]);
+
+      if (result.affectedRows === 0) {
+        throw new Error("Ticket not found or no changes made.");
+      }
+
+      console.log(`Ticket SLA status updated: ${metSla ? "Met" : "Not Met"}`);
+    } else {
+      // Update ticket status
+      const updateQuery = `UPDATE window_tickettb SET status = ?, called_at = NOW() WHERE id = ?`;
+      const [result] = await connection.execute(updateQuery, [
+        status,
+        ticketId,
+      ]);
+
+      if (result.affectedRows === 0) {
+        throw new Error("Ticket not found or no changes made.");
+      }
     }
 
     const selectQuery = `SELECT * FROM window_tickettb WHERE id = ?`;
@@ -316,17 +422,32 @@ export const ticketStatus = async (req, res) => {
 export const nextWindow = async (req, res) => {
   const connection = await pool.getConnection();
   await connection.beginTransaction();
+
   try {
     const { window, user } = req.body;
 
     const ticketId = uuidv4();
 
+    // const insertQuery = `
+    //     INSERT INTO window_tickettb (id, window_id, ticket_number, user_id, service_type, status)
+    //     SELECT ?, ?, COALESCE(MAX(ticket_number), 0) + 1, ?, ?, ?
+    //     FROM window_tickettb
+    //     WHERE window_id = ?;
+    // `;
+
+    const windowQuery =
+      "SELECT department_id FROM service_windowtb WHERE id = ?";
+    const [department_id] = await connection.execute(windowQuery, [window.id]);
+
+    const departmentId = department_id[0].department_id;
+
     const insertQuery = `
-      INSERT INTO window_tickettb (id, window_id, ticket_number, user_id, service_type, status)
-      SELECT ?, ?, COALESCE(MAX(ticket_number), 0) + 1, ?, ?, ?
+      INSERT INTO window_tickettb (id, window_id, ticket_number, user_id, service_type, status, department_id)
+      SELECT ?, ?, COALESCE(MAX(ticket_number), 0) + 1, ?, ?, ?, ?
       FROM window_tickettb
-      WHERE window_id = ?;
-  `;
+      WHERE window_id = ?
+        AND DATE(issued_at) = CURDATE();
+    `;
 
     await connection.execute(insertQuery, [
       ticketId,
@@ -334,6 +455,7 @@ export const nextWindow = async (req, res) => {
       user.id,
       window.service_type,
       "waiting",
+      departmentId,
       window.id,
     ]);
 
@@ -377,5 +499,66 @@ export const notPresent = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   } finally {
     connection.release();
+  }
+};
+
+export const getVoided = async (req, res) => {
+  const connection = await pool.getConnection();
+  await connection.beginTransaction();
+
+  try {
+    const selectQuery = "SELECT * FROM window_tickettb WHERE status = ?";
+    const [rows] = await connection.execute(selectQuery, ["ticketId"]);
+
+    const data = rows[0];
+
+    await connection.commit();
+    res.status(201).json(data);
+  } catch (error) {
+    await connection.rollback();
+    console.error("Error updating ticket status:", error);
+    res.status(500).json({ message: "Server error" });
+  } finally {
+    connection.release();
+  }
+};
+
+export const getFunction = async (req, res) => {
+  try {
+    const userData = req.user;
+    const avgTime = await getAverageProcessTime(userData);
+    const ticketStat = await getTicketStats(userData);
+    const serviceDistributions = await serviceDistribution(userData);
+    const newUsers = await userInThisMonth();
+
+    res
+      .status(200)
+      .json({ avgTime, ticketStat, serviceDistributions, newUsers });
+  } catch (error) {
+    console.error("Error updating ticket status:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getFunctionSuper = async (req, res) => {
+  try {
+    const avgTime = await getAverageProcessTimeSuper();
+    const ticketStat = await getTicketStatsSuper();
+    const serviceDistributions = await serviceDistributionSuper();
+    const newUsers = await userInThisMonth();
+    const departmentAnalytics = await departmentAnalyticsSuper();
+
+    console.log("departmentAnalytics: ", departmentAnalytics);
+
+    res.status(200).json({
+      avgTime,
+      ticketStat,
+      serviceDistributions,
+      newUsers,
+      departmentAnalytics,
+    });
+  } catch (error) {
+    console.error("Error updating ticket status:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };

@@ -1,205 +1,135 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Bell, Menu, MessageSquare, Search, User } from "lucide-react";
+import { NavLink } from "react-router-dom";
+import { useAuthStore } from "../../store/useAuthStore";
+import { useDepartmentStore } from "../../store/useDepartmentStore";
 
 const Header = () => {
-  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
-  const [isAlertsDropdownOpen, setIsAlertsDropdownOpen] = useState(false);
-  const [isMessagesDropdownOpen, setIsMessagesDropdownOpen] = useState(false);
-  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const { reqUserDepartment, getUserDepartment } = useDepartmentStore();
+  const { logout } = useAuthStore();
+  const [isDropdownOpen, setIsDropdownOpen] = useState({
+    search: false,
+    alerts: false,
+    messages: false,
+    user: false,
+  });
 
-  const toggleSearchDropdown = () => {
-    setIsSearchDropdownOpen(!isSearchDropdownOpen);
-  };
+  useEffect(() => {
+    getUserDepartment();
+  }, []);
 
-  const toggleAlertsDropdown = () => {
-    setIsAlertsDropdownOpen(!isAlertsDropdownOpen);
-  };
-
-  const toggleMessagesDropdown = () => {
-    setIsMessagesDropdownOpen(!isMessagesDropdownOpen);
-  };
-
-  const toggleUserDropdown = () => {
-    setIsUserDropdownOpen(!isUserDropdownOpen);
+  const toggleDropdown = (key) => {
+    setIsDropdownOpen((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
   };
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
-      <div className="container mx-auto px-4 flex items-center justify-between h-16">
-        {/* Sidebar Toggle (Visible only on small screens) */}
-        <button
-          className="md:hidden p-2 rounded-full text-white bg-pink-500 hover:bg-pink-600 transition-colors"
-          onClick={toggleSearchDropdown}
-        >
-          <i className="fa fa-bars"></i>
+      <div className="container mx-auto px-6 flex items-center justify-between h-16">
+        {/* Mobile Menu Toggle */}
+        <button className="md:hidden p-2 rounded-lg bg-pink-500 hover:bg-pink-600 text-white transition">
+          <Menu className="w-6 h-6" />
         </button>
 
-        {/* Topbar Search (Hidden on small screens) */}
-        <form className="hidden md:flex items-center bg-gray-100 rounded-lg overflow-hidden w-80">
+        {/* Search Bar (Hidden on Mobile) */}
+        <div className="hidden md:flex items-center bg-gray-100 rounded-lg overflow-hidden w-80">
           <input
             type="text"
-            placeholder="Search for..."
+            placeholder="Search..."
             className="flex-1 px-3 py-2 text-gray-700 focus:outline-none bg-transparent"
           />
-          <button
-            className="px-4 py-2 bg-pink-500 text-white hover:bg-pink-600 transition-colors"
-            type="button"
-          >
-            <i className="fas fa-search"></i>
+          <button className="px-4 py-2 bg-pink-500 text-white hover:bg-pink-600 transition">
+            <Search className="w-5 h-5" />
           </button>
-        </form>
+        </div>
 
-        {/* Topbar Navbar */}
-        <ul className="flex items-center space-x-4">
-          {/* Nav Item - Search Dropdown (Visible only on small screens) */}
-          <li className="md:hidden">
-            <a
-              className="nav-link dropdown-toggle"
-              href="#"
-              id="searchDropdown"
-              role="button"
-              onClick={toggleSearchDropdown}
+        {/* Icons & Dropdowns */}
+        <div className="flex items-center space-x-4">
+          {/* Alerts Dropdown */}
+          <div className="relative">
+            <button
+              className="relative p-2 rounded-full hover:bg-gray-100 transition"
+              onClick={() => toggleDropdown("alerts")}
             >
-              <i className="fas fa-search fa-fw"></i>
-            </a>
-            {/* Dropdown - Search */}
-            <div
-              className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 ${
-                isSearchDropdownOpen ? "block" : "hidden"
-              }`}
-            >
-              <form className="p-2">
-                <input
-                  type="text"
-                  className="w-full px-2 py-1 border rounded"
-                  placeholder="Search..."
-                />
-              </form>
-            </div>
-          </li>
-
-          {/* Nav Item - Alerts */}
-          <li className="relative">
-            <a
-              className="nav-link dropdown-toggle"
-              href="#"
-              id="alertsDropdown"
-              role="button"
-              onClick={toggleAlertsDropdown}
-            >
-              <i className="fas fa-bell fa-fw"></i>
-              <span className="absolute top-0 right-0 inline-block w-2 h-2 bg-red-500 rounded-full"></span>
-            </a>
-            {/* Dropdown - Alerts */}
-            <div
-              className={`absolute right-0 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 ${
-                isAlertsDropdownOpen ? "block" : "hidden"
-              }`}
-            >
-              <div className="p-4">
-                <h6 className="text-sm font-semibold">Alerts Center</h6>
-                <div className="mt-2 space-y-2">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <i className="fas fa-file-alt text-blue-500"></i>
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium">
-                        New report available
-                      </p>
-                      <p className="text-xs text-gray-500">December 12, 2019</p>
-                    </div>
+              <Bell className="w-6 h-6 text-gray-600" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            {isDropdownOpen.alerts && (
+              <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg p-4 z-50">
+                <h6 className="text-sm font-semibold mb-2">Alerts</h6>
+                <div className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg">
+                  <Bell className="w-5 h-5 text-blue-500" />
+                  <div>
+                    <p className="text-sm">New report available</p>
+                    <p className="text-xs text-gray-500">2 mins ago</p>
                   </div>
                 </div>
               </div>
-            </div>
-          </li>
+            )}
+          </div>
 
-          {/* Nav Item - Messages */}
-          <li className="relative">
-            <a
-              className="nav-link dropdown-toggle"
-              href="#"
-              id="messagesDropdown"
-              role="button"
-              onClick={toggleMessagesDropdown}
+          {/* Messages Dropdown */}
+          <div className="relative">
+            <button
+              className="relative p-2 rounded-full hover:bg-gray-100 transition"
+              onClick={() => toggleDropdown("messages")}
             >
-              <i className="fas fa-envelope fa-fw"></i>
-              <span className="absolute top-0 right-0 inline-block w-2 h-2 bg-red-500 rounded-full"></span>
-            </a>
-            {/* Dropdown - Messages */}
-            <div
-              className={`absolute right-0 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 ${
-                isMessagesDropdownOpen ? "block" : "hidden"
-              }`}
-            >
-              <div className="p-4">
-                <h6 className="text-sm font-semibold">Message Center</h6>
-                <div className="mt-2 space-y-2">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      <img
-                        className="h-8 w-8 rounded-full"
-                        src="https://via.placeholder.com/150"
-                        alt=""
-                      />
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium">Hi there!</p>
-                      <p className="text-xs text-gray-500">Toni Fowler · 58m</p>
-                    </div>
+              <MessageSquare className="w-6 h-6 text-gray-600" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            {isDropdownOpen.messages && (
+              <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg p-4 z-50">
+                <h6 className="text-sm font-semibold mb-2">Messages</h6>
+                <div className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg">
+                  <img
+                    src="https://via.placeholder.com/40"
+                    alt="User"
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <div>
+                    <p className="text-sm font-medium">New message</p>
+                    <p className="text-xs text-gray-500">5 mins ago</p>
                   </div>
                 </div>
               </div>
-            </div>
-          </li>
+            )}
+          </div>
 
-          {/* Nav Item - User Information */}
-          <li className="relative">
-            <a
-              className="nav-link dropdown-toggle"
-              href="#"
-              id="userDropdown"
-              role="button"
-              onClick={toggleUserDropdown}
+          {/* User Dropdown */}
+          <div className="relative">
+            <button
+              className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition"
+              onClick={() => toggleDropdown("user")}
             >
-              <span className="mr-2 hidden md:inline text-gray-600">
-                Danielle
+              <span className="hidden md:inline text-gray-600">
+                {reqUserDepartment?.name.length > 10
+                  ? `${reqUserDepartment?.name.slice(0, 8)}…`
+                  : reqUserDepartment?.name}
               </span>
-              <img
-                className="h-8 w-8 rounded-full"
-                src="https://via.placeholder.com/150"
-                alt="User"
-              />
-            </a>
-            {/* Dropdown - User Information */}
-            <div
-              className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 ${
-                isUserDropdownOpen ? "block" : "hidden"
-              }`}
-            >
-              <div className="py-1">
+
+              <User className="w-6 h-6 text-gray-600" />
+            </button>
+            {isDropdownOpen.user && (
+              <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg py-2 z-50">
                 <a
                   href="#"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  Profile
-                </a>
-                <a
-                  href="#"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  className="block px-4 py-2 text-sm hover:bg-gray-100"
                 >
                   Settings
                 </a>
-                <a
-                  href="#"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+
+                <button
+                  className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-start"
+                  onClick={logout}
                 >
-                  Logout
-                </a>
+                  <span className=" hidden sm:inline">Logout</span>
+                </button>
               </div>
-            </div>
-          </li>
-        </ul>
+            )}
+          </div>
+        </div>
       </div>
     </nav>
   );

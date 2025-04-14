@@ -67,7 +67,7 @@ const AddWindow = ({
                   : "bg-gray-400 text-gray-200 cursor-not-allowed"
               }`}
           >
-            <Plus className="w-4 h-4 inline-block mr-2" /> Add Counter
+            <Plus className="w-4 h-4 inline-block mr-2" /> Add More Counters
           </button>
 
           {/* Display Counters with Staff */}

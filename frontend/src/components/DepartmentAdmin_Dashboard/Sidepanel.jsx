@@ -1,9 +1,16 @@
-import React, { useState } from "react";
+import { QrCode } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
+import { useDepartmentStore } from "../../store/useDepartmentStore";
 
 const Sidebar = () => {
+  const { getUserDepartment, reqUserDepartment } = useDepartmentStore();
   const [queueDropdownOpen, setQueueDropdownOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    getUserDepartment();
+  }, []);
 
   return (
     <div className="bg-gradient-to-b h-screen text-white w-64 fixed from-pink-500 md:relative pt-5 px-5 to-pink-700">
@@ -128,6 +135,29 @@ const Sidebar = () => {
           </ul>
         </li>
       </ul>
+
+      <div className="">
+        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex items-center text-center w-fit group">
+          {/* Tooltip - QR Code Image */}
+          {reqUserDepartment?.qr_code && (
+            <div className="absolute bottom-14 left-1/2 transform -translate-x-1/2 hidden group-hover:flex bg-white p-2 shadow-lg rounded-lg">
+              <img
+                src={reqUserDepartment.qr_code} // Directly use Base64 image
+                alt="QR Code"
+                className="w-24 h-24"
+              />
+            </div>
+          )}
+
+          {/* QR Code Button */}
+          <div className="flex items-center gap-3 bg-white text-pink-700 px-6 py-2 rounded-lg shadow-md w-fit">
+            <QrCode className="w-6 text-pink-700" />
+            <h1 className="font-semibold text-lg whitespace-nowrap">
+              Dep. QR Code
+            </h1>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

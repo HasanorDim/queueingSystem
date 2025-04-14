@@ -1,8 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useTicketStore } from "../../../store/useTicketStore";
+import SubMain from "./SubMain";
 
 const Main = () => {
-  const { isBreakTime, setBreakTime } = useTicketStore();
+  const {
+    isBreakTime,
+    setBreakTime,
+    setTotalTicketByDepartments,
+    ticketCount,
+  } = useTicketStore();
+
+  useEffect(() => {
+    setTotalTicketByDepartments();
+  }, []);
 
   const toggleAllQueues = (event) => {
     event.preventDefault();
@@ -10,7 +20,7 @@ const Main = () => {
   };
 
   return (
-    <div className="p-6 ">
+    <div className="px-4 pt-6">
       {/* Page Heading */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
@@ -29,48 +39,44 @@ const Main = () => {
       {/* Content Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <StatCard
-          title="Total Active Tickets"
-          icon="fas fa-ticket-alt"
-          borderColor="border-blue-500"
-          fontColor="text-blue-500"
+          title="Pending Tickets"
+          icon="fas fa-hourglass-half"
+          value={ticketCount?.waiting || 0}
+          iconColor="text-amber-500" // Changed to amber for pending/waiting
+          fontColor="text-yellow-500"
         />
         <StatCard
           title="Completed Tickets"
           icon="fas fa-check-circle"
-          borderColor="border-green-500"
+          value={ticketCount?.completed || 0}
+          iconColor="text-green-500" // Kept green for success/completion
           fontColor="text-green-500"
         />
         <StatCard
-          title="Expired Tickets"
-          icon="fas fa-exclamation-circle"
-          borderColor="border-red-500"
+          title="Missed Tickets"
+          icon="fas fa-user-times"
+          value={ticketCount?.void || 0}
+          iconColor="text-red-500" // Kept red for warning/errors
           fontColor="text-red-500"
         />
-        <StatCard
-          title="Pending Tickets"
-          icon="fas fa-clock"
-          borderColor="border-yellow-500"
-          fontColor="text-yellow-500"
-        />
       </div>
+      <SubMain />
     </div>
   );
 };
 
-const StatCard = ({ title, icon, borderColor, fontColor }) => {
+const StatCard = ({ title, icon, iconColor, fontColor, value }) => {
   return (
-    <div
-      className={`border-l-4 ${borderColor} shadow-lg bg-white rounded-xl p-6 flex items-center`}
-    >
-      <div className="flex-grow">
-        <p
-          className={`text-sm font-bold text-gray-500 uppercase ${fontColor} `}
-        >
-          {title}
-        </p>
-        <h2 className="text-3xl font-bold text-gray-800">0</h2>
+    <div className="bg-white rounded-lg shadow-sm p-5 border-t-4 border-pink-500">
+      <div className="flex items-center gap-4">
+        <div className={`p-3 rounded-full bg-blue-50 ${iconColor}`}>
+          <i className={`${icon} text-2xlxl`}></i>
+        </div>
+        <div>
+          <p className={`text-sm ${fontColor}`}>{title}</p>
+          <p className="text-2xl font-bold">{value}</p>
+        </div>
       </div>
-      <i className={`${icon} text-4xl text-gray-400 ml-4`}></i>
     </div>
   );
 };

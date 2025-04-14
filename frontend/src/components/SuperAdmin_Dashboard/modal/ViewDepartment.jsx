@@ -1,10 +1,13 @@
 import { Plus, ScanQrCode } from "lucide-react";
 import React, { useEffect } from "react";
-import CreateUserDepartment from "../MainContent/CreateUserDepartment";
+// import CreateUserDepartment from "../MainContent/CreateUserDepartment";
+import { useNavigate } from "react-router-dom";
+
 import { useDepartmentStore } from "../../../store/useDepartmentStore";
 
 const ViewDepartment = ({ modalId, headText }) => {
   const { selectedUser, generateQR } = useDepartmentStore();
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -12,7 +15,7 @@ const ViewDepartment = ({ modalId, headText }) => {
       console.error("Error: selectedUser or selectedUser.id is missing!");
       return; // Stop execution if selectedUser is not valid
     }
-    generateQR(selectedUser.id);
+    // generateQR(selectedUser.id);
   };
 
   return (
@@ -30,14 +33,20 @@ const ViewDepartment = ({ modalId, headText }) => {
           </div>
           <div className="card-body items-center text-center">
             <h2 className="card-title">{headText}</h2>
-            <button
-              className="btn"
-              onClick={() =>
-                document.getElementById("setUserDepartment").showModal()
-              }
-            >
-              Set user Department
-            </button>
+
+            {/* Is user Set or not  */}
+            {selectedUser && selectedUser.has_user === 1 ? (
+              <div className="bg-green-300 text-gray-700 px-4 py-2 rounded-lg cursor-not-allowed">
+                Department Account Set
+              </div>
+            ) : (
+              <button
+                className="btn bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-600 transition"
+                onClick={() => navigate("/dashboard/set-user-department")}
+              >
+                Set User Department
+              </button>
+            )}
           </div>
           <form method="dialog overflow-auto" onSubmit={handleSubmit}>
             <div className="flex flex-1 justify-center items-center">
@@ -113,8 +122,8 @@ const ViewDepartment = ({ modalId, headText }) => {
                     </div>
                   ) : (
                     <div className="w-full max-w-sm min-w-[200px] flex flex-1 flex-col">
-                      <label className="block mb-2 text-sm text-center text-red-400">
-                        No Counters Found
+                      <label className="block mb-2 text-sm text-center text-gray-400 italic">
+                        List of counters here...
                       </label>
                     </div>
                   )}
@@ -154,7 +163,6 @@ const ViewDepartment = ({ modalId, headText }) => {
               )}
             </div>
           </form>
-          <CreateUserDepartment createModal="setUserDepartment" />
         </div>
       </dialog>
     </>

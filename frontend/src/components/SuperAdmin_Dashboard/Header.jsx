@@ -7,7 +7,7 @@ const Header = () => {
   const { logout } = useAuthStore();
 
   return (
-    <div className="navbar bg-base-200">
+    <div className="navbar bg-white shadow-md ">
       <div className="navbar-start">
         <div className="dropdown">
           <div

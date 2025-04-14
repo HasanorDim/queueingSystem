@@ -151,7 +151,8 @@ export const getTableWindow = async (req, res) => {
     INNER JOIN user_detailstb ON users.id = user_detailstb.user_id
     INNER JOIN window_tickettb ON users.id = window_tickettb.user_id
     WHERE window_tickettb.window_id = ? 
-    AND window_tickettb.status NOT IN ('completed');
+    AND window_tickettb.status NOT IN ('completed')
+    AND DATE(issued_at) = CURDATE();
   `;
 
     const [rowsUser] = await connection.execute(queryUser, [windowId]);
@@ -199,7 +200,8 @@ export const getTicketInQueueWindow = async (req, res) => {
     INNER JOIN user_detailstb ON users.id = user_detailstb.user_id
     INNER JOIN window_tickettb ON users.id = window_tickettb.user_id
     WHERE window_tickettb.window_id = ? 
-    AND window_tickettb.status NOT IN ('completed', 'void');
+    AND window_tickettb.status NOT IN ('completed', 'void')
+    AND DATE(issued_at) = CURDATE();
   `;
 
     const [rowsUser] = await connection.execute(queryUser, [windowId]);

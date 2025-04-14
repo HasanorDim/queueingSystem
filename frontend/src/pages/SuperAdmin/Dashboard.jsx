@@ -11,10 +11,8 @@ const Dashboard = () => {
     getAllDepartments();
   }, [getAllDepartments]);
 
-  console.log("SuperAdmin");
-
   return (
-    <div className="flex w-full h-screen overflow-hidden">
+    <div className="flex w-full h-screen overflow-hidden bg-[#eee]">
       {/* SidePanel */}
       <Sidepanel />
 

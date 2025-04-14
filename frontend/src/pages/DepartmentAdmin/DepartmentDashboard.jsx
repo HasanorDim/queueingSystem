@@ -2,7 +2,6 @@ import React from "react";
 import Sidepanel from "../../components/DepartmentAdmin_Dashboard/Sidepanel";
 import { Outlet } from "react-router-dom";
 import Header from "../../components/DepartmentAdmin_Dashboard/Header";
-import Main from "../../components/DepartmentAdmin_Dashboard/MainContent/Main";
 
 const DepartmentDashboard = () => {
   return (

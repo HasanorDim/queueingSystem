@@ -1,10 +1,10 @@
-import { ToggleRight } from "lucide-react";
+import { Loader2, ToggleRight } from "lucide-react";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 
 const Signup = () => {
-  const { signup } = useAuthStore();
+  const { signup, isSigningUp } = useAuthStore();
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
@@ -354,11 +354,26 @@ const Signup = () => {
                     </div>
                   </div>
                   <div className="mb-5">
-                    <input
+                    {/* <input
                       type="submit"
                       className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
                       value="Create account"
-                    />
+                    /> */}
+
+                    <button
+                      type="submit"
+                      className="btn btn-primary w-full"
+                      disabled={isSigningUp}
+                    >
+                      {isSigningUp ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          Loading...
+                        </>
+                      ) : (
+                        "Create account"
+                      )}
+                    </button>
                   </div>
                   <button className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50">
                     <span>

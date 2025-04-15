@@ -548,8 +548,6 @@ export const getFunctionSuper = async (req, res) => {
     const newUsers = await userInThisMonth();
     const departmentAnalytics = await departmentAnalyticsSuper();
 
-    console.log("departmentAnalytics: ", departmentAnalytics);
-
     res.status(200).json({
       avgTime,
       ticketStat,

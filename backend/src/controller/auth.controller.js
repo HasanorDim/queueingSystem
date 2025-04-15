@@ -8,38 +8,50 @@ export const signup = async (req, res) => {
 
   try {
     const connection = await pool.getConnection();
-    if (!email || !password)
-      return res.status(400).json({ message: "All fields are required!" });
+    await connection.beginTransaction();
 
-    if (password.length < 6)
-      return res
-        .status(400)
-        .json({ message: "Password must be at least 6 characters" });
+    try {
+      if (!email || !password)
+        return res.status(400).json({ message: "All fields are required!" });
 
-    const id = uuidv4();
+      if (password.length < 6)
+        return res
+          .status(400)
+          .json({ message: "Password must be at least 6 characters" });
 
-    const authUser = await authUserID(
-      id,
-      email,
-      password,
-      firstname,
-      lastname,
-      res
-    );
-    if (!authUser.success)
-      return res
-        .status(400)
-        .json({ message: authUser.message || "Authentication failed" });
+      const id = uuidv4();
 
-    const [rows] = await connection.execute(
-      "SELECT * FROM users WHERE id = ?",
-      [authUser.userId]
-    );
+      const authUser = await authUserID(
+        connection, // Pass the connection
+        id,
+        email,
+        password,
+        firstname,
+        lastname,
+        res
+      );
 
-    const user = rows[0];
+      if (!authUser.success) {
+        await connection.rollback();
+        return res
+          .status(400)
+          .json({ message: authUser.message || "Authentication failed" });
+      }
 
-    connection.release();
-    return res.status(201).json(user);
+      // Now query using the same connection
+      const [rows] = await connection.execute(
+        "SELECT * FROM users WHERE id = ?",
+        [authUser.userId]
+      );
+
+      await connection.commit(); // Commit the transaction
+      const user = rows[0];
+      connection.release();
+      return res.status(201).json(user);
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    }
   } catch (error) {
     console.log("Error in backend signup", error);
     return res

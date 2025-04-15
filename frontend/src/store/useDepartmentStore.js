@@ -11,9 +11,11 @@ export const useDepartmentStore = create((set, get) => ({
   serviceWindows: [],
   referenceCount: null,
   reqUserDepartment: null,
+  isAddingDep: false,
 
   addDepartment: async (data) => {
     try {
+      set({ isAddingDep: true });
       const { departments } = get();
       const response = await axiosInstance.post("/department/add", data);
       const sorted = orderBy(
@@ -26,6 +28,8 @@ export const useDepartmentStore = create((set, get) => ({
     } catch (error) {
       console.log("Error in addDepartment", error);
       toast.error("Failed to add department");
+    } finally {
+      set({ isAddingDep: false });
     }
   },
 

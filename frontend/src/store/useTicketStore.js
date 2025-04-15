@@ -10,6 +10,7 @@ export const useTicketStore = create((set, get) => ({
   isTicketLoading: false,
   queue_num: null,
   totalTickets: 0,
+  totalTicketsSuper: 0,
   allTickets: null,
   groupWindows: null,
   isTicketUpdate: false,
@@ -23,6 +24,7 @@ export const useTicketStore = create((set, get) => ({
   voidedTickets: [],
   ticketCount: null,
   otherData: null,
+  otherDataSuper: null,
 
   checkTicketAuthUser: async () => {
     try {
@@ -106,7 +108,7 @@ export const useTicketStore = create((set, get) => ({
     try {
       const response = await axiosInstance.get("/ticket/all-tickets");
       set({
-        totalTickets: response.data,
+        totalTicketsSuper: response.data,
       });
     } catch (error) {
       console.log("Error in getTotalTicket", error);
@@ -224,7 +226,7 @@ export const useTicketStore = create((set, get) => ({
   getOtherDataSuper: async () => {
     try {
       const response = await axiosInstance.get("/ticket/getFunctionSuper");
-      set({ otherData: response.data });
+      set({ otherDataSuper: response.data });
     } catch (error) {
       console.log("Error in get Other Data", error);
     }

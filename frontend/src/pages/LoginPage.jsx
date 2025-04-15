@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Mail } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 
 const LoginPage = () => {
-  const { login } = useAuthStore();
+  const { login, isLogingIn } = useAuthStore();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -238,8 +238,19 @@ const LoginPage = () => {
                 </div>
               </div>
               <div className="mb-5">
-                <button type="submit" className="btn w-full cursor-pointer">
-                  Sign In
+                <button
+                  type="submit"
+                  className="btn btn-primary w-full"
+                  disabled={isLogingIn}
+                >
+                  {isLogingIn ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    "Sign in"
+                  )}
                 </button>
               </div>
               <button className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50">

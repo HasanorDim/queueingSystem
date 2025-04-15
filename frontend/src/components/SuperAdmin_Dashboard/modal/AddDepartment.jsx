@@ -1,5 +1,6 @@
-import React from "react";
-import { Plus } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Loader2, Plus } from "lucide-react";
+import { useDepartmentStore } from "../../../store/useDepartmentStore";
 
 const AddDepartment = ({
   modalId, // Add modalId prop
@@ -7,6 +8,34 @@ const AddDepartment = ({
   setFormData,
   handleSubmit,
 }) => {
+  const [isEmpty, setIsEmpty] = useState(false);
+  const { isAddingDep } = useDepartmentStore();
+  const prevIsAddingDep = useRef(false);
+
+  useEffect(() => {
+    console.log("prevIsAddingDep.current: ", prevIsAddingDep.current);
+    if (prevIsAddingDep.current && !isAddingDep) {
+      // just finished loading
+      const modal = document.getElementById(modalId);
+      if (modal) modal.close();
+    }
+    prevIsAddingDep.current = isAddingDep;
+  }, [isAddingDep, modalId]);
+
+  useEffect(() => {
+    // Check if either name or description is null, undefined, or empty
+    if (
+      !formData?.name ||
+      !formData?.description ||
+      formData?.name.trim() === "" ||
+      formData?.description.trim() === ""
+    ) {
+      setIsEmpty(true); // If data is missing or empty, set isEmpty to true
+    } else {
+      setIsEmpty(false); // If data is present, set isEmpty to false
+    }
+  }, [formData]); // This effect runs every time formData changes
+
   return (
     <div className="modal-box overflow-hidden overflow-y-auto">
       <div className="card-body items-center text-center">
@@ -47,12 +76,30 @@ const AddDepartment = ({
 
         {/* Action Button */}
         <div className="p-6 pt-0">
-          <button
+          {/* <button
             className="btn w-full rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
             type="submit"
             onClick={() => document.getElementById(modalId).close()}
+            disabled={isEmpty}
           >
-            <Plus /> Add Details
+            <Plus /> Create Department
+          </button> */}
+          <button
+            type="submit"
+            className="btn w-full rounded-md bg-slate-800 py-2 px-4 border border-transparent text-center text-sm text-white transition-all shadow-md hover:shadow-lg focus:bg-slate-700 focus:shadow-none active:bg-slate-700 hover:bg-slate-700 active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+            disabled={isEmpty || isAddingDep}
+          >
+            {isAddingDep ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Loading...
+              </>
+            ) : (
+              <>
+                <Plus />
+                Create Department
+              </>
+            )}
           </button>
         </div>
 

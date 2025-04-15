@@ -177,7 +177,7 @@ const Cards = () => {
               Active Users
             </span>
             {usertimeFilter && (
-              <span className="ml-1 text-xs font-medium text-purple-600">
+              <span className="ml-1 text-xs font-medium text-green-600">
                 {usertimeFilter === "month" && "| Month"}
                 {usertimeFilter === "all" && "| All Time"}
               </span>

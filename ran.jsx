@@ -4,6 +4,21 @@ import { useWindowStore } from "../../../store/useWindowStore";
 import { Navigate } from "react-router-dom";
 
 const QueueUser = () => {
+  // isLoading
+  // <button
+  //   type="submit"
+  //   className="btn btn-primary w-full"
+  //   disabled={isLogingIn}
+  // >
+  //   {isLogingIn ? (
+  //     <>
+  //       <Loader2 className="h-5 w-5 animate-spin" />
+  //       Loading...
+  //     </>
+  //   ) : (
+  //     "Sign in"
+  //   )}
+  // </button>
   const {
     getAllTickets,
     updateTicketStatus,

@@ -6,14 +6,17 @@ import ServiceDistributionChart from "../../DepartmentAdmin_Dashboard/MainConten
 import { useDepartmentStore } from "../../../store/useDepartmentStore";
 
 const SuperSubMain = () => {
-  const { setTotalTicket, totalTickets, otherData, getOtherDataSuper } =
-    useTicketStore();
-  const { departments, getAllDepartments } = useDepartmentStore();
+  const {
+    setTotalTicket,
+    totalTicketsSuper,
+    otherDataSuper,
+    getOtherDataSuper,
+  } = useTicketStore();
+  const { departments } = useDepartmentStore();
 
   useEffect(() => {
-    getOtherDataSuper();
-    getAllDepartments();
     setTotalTicket();
+    getOtherDataSuper();
   }, []);
 
   const getTrendIcon = (trend) => {
@@ -27,10 +30,8 @@ const SuperSubMain = () => {
     }
   };
 
-  console.log("otherData: ", otherData);
-
   // No tickets state
-  if (!totalTickets || totalTickets.length <= 0) {
+  if (!totalTicketsSuper || totalTicketsSuper.length <= 0) {
     console.log("No tickets");
     return (
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -70,10 +71,15 @@ const SuperSubMain = () => {
   endOfWeek.setDate(startOfWeek.getDate() + 6);
   endOfWeek.setHours(23, 59, 59, 999);
 
-  const thisWeekTickets = totalTickets?.rawData.filter((ticket) => {
-    const issuedDate = new Date(ticket.issued_at);
-    return issuedDate >= startOfWeek && issuedDate <= endOfWeek;
-  });
+  if (!totalTicketsSuper?.rawData && totalTicketsSuper?.rawData.length > 0)
+    return;
+
+  const thisWeekTickets = (totalTicketsSuper?.rawData || []).filter(
+    (ticket) => {
+      const issuedDate = new Date(ticket.issued_at);
+      return issuedDate >= startOfWeek && issuedDate <= endOfWeek;
+    }
+  );
 
   const ticketCountsByDay = thisWeekTickets.reduce((acc, ticket) => {
     const date = new Date(ticket.issued_at);
@@ -108,14 +114,14 @@ const SuperSubMain = () => {
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
             <div className="p-4 border-b border-gray-200 flex justify-between items-center">
               <h2 className="text-lg font-semibold text-gray-800">
-                New Users This Month ({otherData?.newUsers?.count || 0})
+                New Users This Month ({otherDataSuper?.newUsers?.count || 0})
               </h2>
               <button className="text-sm text-blue-600 hover:text-blue-800">
                 View All
               </button>
             </div>
             <div className="divide-y divide-gray-200 max-h-[600px] overflow-y-auto">
-              {otherData?.newUsers?.users?.map((user) => (
+              {otherDataSuper?.newUsers?.users?.map((user) => (
                 <div
                   key={user.id}
                   className="p-4 hover:bg-gray-50 transition-colors flex justify-between items-center"
@@ -149,19 +155,20 @@ const SuperSubMain = () => {
               </h2>
               <span
                 className={`text-xs px-2 py-1 rounded-full ${
-                  otherData?.ticketStat?.trend === "up"
+                  otherDataSuper?.ticketStat?.trend === "up"
                     ? "bg-green-100 text-green-800"
-                    : otherData?.ticketStat?.trend === "down"
+                    : otherDataSuper?.ticketStat?.trend === "down"
                     ? "bg-red-100 text-red-800"
                     : "bg-gray-100 text-gray-800"
                 }`}
               >
-                {getTrendIcon(otherData?.ticketStat?.trend)}{" "}
-                {otherData?.ticketStat?.percentageChange || 0}% from yesterday
+                {getTrendIcon(otherDataSuper?.ticketStat?.trend)}{" "}
+                {otherDataSuper?.ticketStat?.percentageChange || 0}% from
+                yesterday
               </span>
             </div>
             <div className="p-4 grid grid-cols-2 gap-4">
-              {Object.entries(otherData?.avgTime || {})
+              {Object.entries(otherDataSuper?.avgTime || {})
                 .filter(([key]) => key !== "trend")
                 .map(([key, value]) => (
                   <div
@@ -196,10 +203,12 @@ const SuperSubMain = () => {
             <div className="p-4">
               <div
                 className={`space-y-4 overflow-y-auto ${
-                  otherData.departmentAnalytics.length > 4 ? "max-h-80" : ""
+                  otherDataSuper?.departmentAnalytics?.length > 4
+                    ? "max-h-80"
+                    : ""
                 }`}
               >
-                {otherData.departmentAnalytics.map((dep) => (
+                {otherDataSuper?.departmentAnalytics.map((dep) => (
                   <div
                     key={dep.id}
                     className="flex items-center justify-between border border-gray-100 rounded-md p-3 bg-gray-50"

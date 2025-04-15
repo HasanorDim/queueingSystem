@@ -119,9 +119,9 @@ export const getTicketStats = async (user) => {
 
     // Determine the trend
     let trend = "flat"; // Default to flat if there's no change
-    if (todayCompleted > yesterdayCompleted) {
+    if (percentageChange > 0) {
       trend = "up"; // If today is greater than yesterday, trend is up
-    } else if (todayCompleted < yesterdayCompleted) {
+    } else if (percentageChange < 0) {
       trend = "down"; // If today is less than yesterday, trend is down
     }
 
@@ -346,12 +346,11 @@ export const getTicketStatsSuper = async () => {
       yesterdayCompleted > 0
         ? ((todayCompleted - yesterdayCompleted) / yesterdayCompleted) * 100
         : 0;
-
     // Determine the trend
     let trend = "flat"; // Default to flat if there's no change
-    if (todayCompleted > yesterdayCompleted) {
+    if (percentageChange > 0) {
       trend = "up"; // If today is greater than yesterday, trend is up
-    } else if (todayCompleted < yesterdayCompleted) {
+    } else if (percentageChange < 0) {
       trend = "down"; // If today is less than yesterday, trend is down
     }
 

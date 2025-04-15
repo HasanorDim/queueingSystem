@@ -6,6 +6,7 @@ import { setTokenOnCookie } from "../lib/util.js";
 // const secretKey = process.env.JWT_SECRET || "your_secret_key";
 
 export const authUserID = async (
+  connection, // Accept connection as parameter
   id,
   email,
   password,
@@ -14,8 +15,6 @@ export const authUserID = async (
   res
 ) => {
   try {
-    const connection = await pool.getConnection();
-
     // Check if user already exists
     const [existingUser] = await connection.execute(
       "SELECT id, password FROM users WHERE email = ?",
@@ -39,11 +38,11 @@ export const authUserID = async (
       [id, firstname, lastname, email, hashedPassword]
     );
 
-    const [user] = await pool.execute("SELECT id FROM users WHERE id = ?", [
-      id,
-    ]);
-
-    connection.release();
+    // Use the same connection to query
+    const [user] = await connection.execute(
+      "SELECT id FROM users WHERE id = ?",
+      [id]
+    );
 
     const userId = user.length > 0 ? user[0].id : null;
 

@@ -95,18 +95,6 @@ const OrganizationUnits = () => {
                       scope="col"
                       className="p-5 text-left text-sm leading-6 font-semibold text-gray-900 capitalize"
                     >
-                      No. Service/s
-                    </th>
-                    <th
-                      scope="col"
-                      className="p-5 text-left text-sm leading-6 font-semibold text-gray-900 capitalize"
-                    >
-                      Code
-                    </th>
-                    <th
-                      scope="col"
-                      className="p-5 text-left text-sm leading-6 font-semibold text-gray-900 capitalize"
-                    >
                       Descriptions
                     </th>
                     <th
@@ -125,12 +113,6 @@ const OrganizationUnits = () => {
                     >
                       <td className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900 ">
                         {item.name}
-                      </td>
-                      <td className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
-                        {item.service_total}
-                      </td>
-                      <td className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
-                        CC0
                       </td>
                       <td className="p-5 whitespace-nowrap text-sm leading-6 font-medium text-gray-900">
                         {item.description}

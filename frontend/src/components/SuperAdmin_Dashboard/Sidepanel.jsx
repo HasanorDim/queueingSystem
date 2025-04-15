@@ -66,7 +66,7 @@ const Sidepanel = () => {
               <ul className="mb-6 flex flex-col gap-1.5">
                 {/* Dashboard Link */}
                 <li>
-                  <a
+                  {/* <a
                     onClick={toggleDashboard}
                     className="group relative flex items-center gap-2.5 rounded-sm px-4 py-2 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 bg-graydark dark:bg-meta-4 active cursor-pointer"
                   >
@@ -77,56 +77,23 @@ const Sidepanel = () => {
                         isDashboardOpen ? "rotate-180" : ""
                       }`}
                     />
-                  </a>
-                  <div
-                    className={`translate transform overflow-hidden ${
-                      isDashboardOpen ? "block" : "hidden"
-                    }`}
-                  >
-                    <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
-                      <li>
-                        <a
-                          className="group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white"
-                          href="/"
-                        >
-                          eCommerce
-                        </a>
-                      </li>
-                      <li>
-                        <a
-                          className="group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white"
-                          href="/dashboard/analytics"
-                        >
-                          Analytics
-                          <span className="absolute right-4 block rounded bg-primary px-2 py-1 text-xs font-medium text-white">
-                            Pro
-                          </span>
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </li>
-
-                {/* Calendar Link */}
-                <li>
-                  <a
-                    className="group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4"
-                    href="/calendar"
-                  >
-                    <CalendarDays />
-                    Calendar
-                  </a>
-                </li>
-
-                <li>
-                  {/* <a
-                    className="group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4"
-                    href="/organization-units"
-                  >
-                    <CalendarDays />
-                    Organization Units
                   </a> */}
 
+                  <NavLink
+                    to="/dashboard"
+                    end
+                    className={({ isActive }) =>
+                      `group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
+                        isActive ? "bg-gray-600" : ""
+                      }`
+                    }
+                  >
+                    <LayoutDashboard />
+                    Dashboard
+                  </NavLink>
+                </li>
+
+                <li>
                   <NavLink
                     to="/dashboard/organization-units"
                     className={({ isActive }) =>
@@ -184,49 +151,6 @@ const Sidepanel = () => {
                     </div>
                   </li>
                 )}
-
-                {/* Tables Link */}
-                <li>
-                  <a
-                    onClick={toggleTables}
-                    className="group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 active cursor-pointer"
-                  >
-                    <TableProperties />
-                    Tables
-                    <ChevronUp
-                      className={`absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 ${
-                        isTablesOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </a>
-                  <div
-                    className={`translate transform overflow-hidden ${
-                      isTablesOpen ? "block" : "hidden"
-                    }`}
-                  >
-                    <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
-                      <li>
-                        <a
-                          className="group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white"
-                          href="/tables/tables"
-                        >
-                          Tables
-                        </a>
-                      </li>
-                      <li>
-                        <a
-                          className="group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white"
-                          href="/tables/pro-tables"
-                        >
-                          Pro Tables
-                          <span className="absolute right-4 block rounded bg-primary py-1 px-2 text-xs font-medium text-white">
-                            Pro
-                          </span>
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                </li>
               </ul>
             </div>
           </nav>

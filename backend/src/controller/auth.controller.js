@@ -2,8 +2,11 @@ import pool from "../config/db.js";
 import { authUserID, loginAuthUserID } from "../functions/create.auth.user.js";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
+import { createDbUser } from "../functions/createDBUser.js";
+import { authsignUpUser } from "../functions/createAuthUser.js";
 
 export const signup = async (req, res) => {
+  const provider = "email";
   const { email, password, firstname, lastname } = req.body;
 
   try {
@@ -19,35 +22,79 @@ export const signup = async (req, res) => {
           .status(400)
           .json({ message: "Password must be at least 6 characters" });
 
-      const id = uuidv4();
+      // const id = uuidv4();
 
-      const authUser = await authUserID(
-        connection, // Pass the connection
-        id,
-        email,
-        password,
-        firstname,
-        lastname,
-        res
-      );
+      // const authUser = await authUserID(
+      //   connection, // Pass the connection
+      //   id,
+      //   email,
+      //   password,
+      //   firstname,
+      //   lastname,
+      //   res
+      // );
 
-      if (!authUser.success) {
-        await connection.rollback();
-        return res
-          .status(400)
-          .json({ message: authUser.message || "Authentication failed" });
+      // if (!authUser.success) {
+      //   await connection.rollback();
+      //   return res
+      //     .status(400)
+      //     .json({ message: authUser.message || "Authentication failed" });
+      // }
+
+      // // Now query using the same connection
+      // const [rows] = await connection.execute(
+      //   "SELECT * FROM users WHERE id = ?",
+      //   [authUser.userId]
+      // );
+
+      // await connection.commit(); // Commit the transaction
+      // const user = rows[0];
+      // connection.release();
+      // return res.status(201).json(user);
+
+      try {
+        // Check if username already exists
+        const { data: existingUser, error: fetchError } = await supabase
+          .from("userstb")
+          .select("*")
+          .eq("email", email);
+
+        if (fetchError) {
+          throw fetchError;
+        }
+
+        if (existingUser.length > 0) {
+          errors.push({ message: "email already registered" });
+          return res.status(400).json({});
+        }
+
+        //Insert user auth to sign up and create account
+        let userAuthId = await authsignUpUser(email, password);
+
+        if (userAuthId) {
+          //Insert user in Database
+          let userdb = createDbUser({
+            user_id: userAuthId.userId,
+            email,
+            firstname,
+            lastname,
+          });
+          if (!userdb) {
+            return res.status(400).json({});
+          }
+
+          return res.status(201).json(userAuthId);
+        } else {
+          console.log("Error: ", userAuthId.message);
+          errors.push({ message: userAuthId.message });
+          return res.status(400).json({ message: userAuthId.message });
+        }
+      } catch (err) {
+        console.log(err);
+        // req.flash("error_msg", "An error occurred during registration.");
+        // res.render("signlogin/signup", { failedMsg: err.message });
+        return res.status(400).json({});
       }
-
-      // Now query using the same connection
-      const [rows] = await connection.execute(
-        "SELECT * FROM users WHERE id = ?",
-        [authUser.userId]
-      );
-
-      await connection.commit(); // Commit the transaction
-      const user = rows[0];
-      connection.release();
-      return res.status(201).json(user);
     } catch (error) {
       await connection.rollback();
       throw error;

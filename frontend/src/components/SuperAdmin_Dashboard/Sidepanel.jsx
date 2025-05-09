@@ -108,7 +108,7 @@ const Sidepanel = () => {
                 </li>
 
                 {/* Forms Link (For Super Admin) */}
-                {authUser.role === 1 && (
+                {/* {authUser.role === 1 && (
                   <li>
                     <a
                       onClick={toggleForms}
@@ -150,7 +150,7 @@ const Sidepanel = () => {
                       </ul>
                     </div>
                   </li>
-                )}
+                )} */}
               </ul>
             </div>
           </nav>

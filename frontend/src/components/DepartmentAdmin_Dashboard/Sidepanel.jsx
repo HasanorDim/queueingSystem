@@ -24,15 +24,23 @@ const Sidebar = () => {
 
       <ul>
         {/* Dashboard Link */}
-        <li className="hover:bg-pink-600 px-4 py-2 transition">
-          <NavLink
-            to="/department-dashboard"
-            className="flex items-center space-x-2"
-          >
-            <i className="fa-tachometer-alt fas"></i>
-            <span>Dashboard</span>
-          </NavLink>
-        </li>
+
+        <NavLink
+          to="/department-dashboard"
+          end
+          // className="flex items-center space-x-2"
+
+          className={({ isActive }) =>
+            `flex gap-2 w-full duration-300 ease-in-out hover:bg-pink-600 items-center px-4 py-2 transition ${
+              isActive
+                ? "bg-pink-400 text-white hover:bg-pink-500 rounded-md"
+                : ""
+            }`
+          }
+        >
+          <i className="fa-tachometer-alt fas"></i>
+          <span>Dashboard</span>
+        </NavLink>
 
         <hr className="border-white/30 my-2" />
 

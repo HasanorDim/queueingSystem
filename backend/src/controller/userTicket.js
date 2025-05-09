@@ -6,19 +6,21 @@ import { setUserTicketTokenOnCookie } from "../lib/util.js";
 
 export const checkUserTicket = async (req, res) => {
   const userId = req.user.id;
+
   if (!userId) {
-    return res.status(400).json({ message: "Ticket ID is required" });
+    return res.status(400).json({ message: "Dont have a user!" });
   }
 
   const connection = await pool.getConnection();
   await connection.beginTransaction();
   try {
     const query = `
-      SELECT * 
-      FROM window_tickettb 
-      WHERE user_id = ? 
-      AND (status = 'waiting' OR status = 'In Progress' OR status = 'On Hold' OR status = 'void');
-    `;
+    SELECT * 
+    FROM window_tickettb 
+    WHERE user_id = ? 
+    AND (status = 'waiting' OR status = 'In Progress' OR status = 'On Hold' OR status = 'void' OR status = 'completed')
+    AND DATE(issued_at) = CURDATE();
+  `;
 
     const [rows] = await connection.execute(query, [userId]);
 

@@ -5,18 +5,29 @@ import SubMain from "./SubMain";
 const Main = () => {
   const {
     isBreakTime,
+    isCutOff,
     setBreakTime,
+    getBreakTime,
+    getCutOff,
+    setCutOff,
     setTotalTicketByDepartments,
     ticketCount,
   } = useTicketStore();
 
   useEffect(() => {
     setTotalTicketByDepartments();
+    getBreakTime();
+    getCutOff();
   }, []);
 
   const toggleAllQueues = (event) => {
     event.preventDefault();
-    setBreakTime(!isBreakTime);
+    setBreakTime();
+  };
+
+  const toggleCutOff = (event) => {
+    event.preventDefault();
+    setCutOff();
   };
 
   return (
@@ -24,16 +35,28 @@ const Main = () => {
       {/* Page Heading */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-        <button
-          id="queueToggleBtn"
-          className="inline-block px-5 py-3 text-white rounded shadow-lg text-base"
-          style={{ backgroundColor: isBreakTime ? "#4CAF50" : "#ff3385" }}
-          onClick={toggleAllQueues}
-        >
-          <span id="queueToggleText">
-            {isBreakTime ? "Resume All Queues" : "Pause All Queues"}
-          </span>
-        </button>
+
+        <div className="inline-block space-x-5 ">
+          <button
+            className=" px-5 py-3 text-white rounded shadow-lg text-base"
+            style={{ backgroundColor: isCutOff ? "#4CAF50" : "#ff3385" }}
+            onClick={toggleCutOff}
+          >
+            <span id="queueToggleText">
+              {isCutOff ? "Disable Cut Off" : "Enable Cut Off"}
+            </span>
+          </button>
+
+          <button
+            className=" px-5 py-3 text-white rounded shadow-lg text-base"
+            style={{ backgroundColor: isBreakTime ? "#4CAF50" : "#ff3385" }}
+            onClick={toggleAllQueues}
+          >
+            <span id="queueToggleText">
+              {isBreakTime ? "Resume All Queues" : "Pause All Queues"}
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Content Row */}

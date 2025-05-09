@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPersonWalkingDashedLineArrowRight,
@@ -10,23 +10,33 @@ import { useTicketStore } from "../../store/useTicketStore";
 import { useWindowStore } from "../../store/useWindowStore";
 import BreakTime from "../usermodal/BreakTime";
 import { useAuthStore } from "../../store/useAuthStore";
+import Ding from "../DepartmentAdmin_Dashboard/MainContent/Ding";
 
 const UserMainContent = () => {
   const {
     checkTicketUser,
     checkTicketAuthUser,
-    subscribeToBreakTime,
-    unsubscribeToBreakTime,
+    subscribeToCutOff,
+    unsubscribeToCutOff,
     isBreakTime,
     subsTicketVoidTimer,
     unsubsTicketVoidTimer,
-    remainingTime,
     calledTicket,
-    releodTime,
+    getBreakTime,
+    getCutOff,
+    subsToUpdateStatus,
+    unsubsubsToUpdateStatus,
+    subscribeToBreakTime,
+    unsubscribeToBreakTime,
   } = useTicketStore();
   const { socket } = useAuthStore();
   const [activeButton, setActiveButton] = useState("button1");
-  const hasRun = useRef(false);
+  const [playNow, setPlayNow] = useState(false);
+  const [mockTicket, setMockTicket] = useState({
+    number: null,
+    counter: null,
+    priority: false, // change this to false for standard
+  });
 
   const handleButtonClick = (buttonId) => {
     setActiveButton(buttonId);
@@ -35,26 +45,54 @@ const UserMainContent = () => {
   const { isUpdated } = useWindowStore();
 
   useEffect(() => {
+    getBreakTime();
+    getCutOff();
+  }, []);
+
+  useEffect(() => {
     checkTicketAuthUser();
     checkTicketUser();
   }, [isUpdated, activeButton, calledTicket]);
 
   useEffect(() => {
-    if (!hasRun.current) {
-      releodTime();
-      hasRun.current = true;
-    }
-  }, [isBreakTime]);
+    subscribeToBreakTime();
+    subscribeToCutOff();
+    return () => {
+      unsubscribeToCutOff();
+      unsubscribeToBreakTime();
+    };
+  }, [socket]);
 
   useEffect(() => {
-    subscribeToBreakTime();
-    return () => unsubscribeToBreakTime();
-  }, [socket, isBreakTime]);
+    subsToUpdateStatus();
+    return () => unsubsubsToUpdateStatus();
+  }, [socket]);
 
   useEffect(() => {
     subsTicketVoidTimer();
     return () => unsubsTicketVoidTimer();
-  }, [socket, remainingTime]);
+  }, [socket]);
+
+  useEffect(() => {
+    const socket1 = socket;
+
+    if (!socket1) return;
+    socket1.on("makeDingSound", (ticket) => {
+      console.log("lowestWaiting: ", ticket);
+      setMockTicket({
+        number: ticket.ticket_number,
+        counter: ticket.service_type || "Counter",
+        priority:
+          ticket.priority_lvl &&
+          ticket.priority_lvl !== "none" &&
+          ticket.ticket_number > ticket.lowestWaiting,
+      });
+      setPlayNow(false); // Reset to allow re-trigger
+      setTimeout(() => setPlayNow(true), 100);
+    });
+
+    return () => socket1.off("makeDingSound");
+  }, [socket]);
 
   return (
     <div className="flex flex-col h-screen w-full bg-[#eee]">
@@ -84,6 +122,13 @@ const UserMainContent = () => {
       <div className="flex flex-grow items-center justify-center">
         {activeButton === "button1" ? <UserTicket /> : <InQueue />}
       </div>
+
+      <Ding
+        ticketNumber={mockTicket.number}
+        counterNumber={mockTicket.counter}
+        isPriority={mockTicket.priority}
+        play={playNow}
+      />
     </div>
   );
 };

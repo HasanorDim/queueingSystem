@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  calledSound,
   checkAuth,
   getAllTickets,
   getFunction,
@@ -36,6 +37,7 @@ router.get(
   totalTicketsByDepartments
 );
 router.get("/all-tickets", totalTickets);
+router.get("/call-sound/:ticketData", calledSound);
 router.get("/department-tickets", protectRoute, getAllTickets);
 router.get("/voided", protectRoute, getVoided);
 router.get("/getFunction", protectRoute, getFunction);

@@ -1,5 +1,5 @@
-import cron from "node-cron";
-import pool from "../config/db.js";
+// import cron from "node-cron";
+// import pool from "../config/db.js";
 
 // cron.schedule("*/1 * * * *", async () => {
 //   const connection = await pool.getConnection();

@@ -8,7 +8,7 @@ import TicketTimer from "./TicketTimer";
 
 const InQueue = () => {
   const { socket } = useAuthStore();
-  const { ticket } = useTicketStore();
+  const { ticket, remainingTime } = useTicketStore();
   const {
     setWindow,
     getTicketWindows,
@@ -73,7 +73,7 @@ const InQueue = () => {
 
             return (
               <div
-                key={window.window.id}
+                key={window.window.id + index}
                 className={`flex flex-col sm:flex-row items-center sm:justify-between p-4 rounded-lg border shadow-sm transition hover:shadow-md ${
                   ticket.status === "void" && isUserTicket
                     ? "bg-gray-400 text-gray-200 line- line-through"
@@ -136,7 +136,7 @@ const InQueue = () => {
               ></path>
             </svg>
             <p className="text-lg sm:text-xl font-medium text-gray-500">
-              No tickets in queue
+              Your dont have tickets in queue
             </p>
             <p className="text-sm text-gray-400 mt-1">
               When tickets arrive, they will appear here

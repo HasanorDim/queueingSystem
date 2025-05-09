@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 import { useAuthStore } from "./useAuthStore";
-import { data } from "react-router-dom";
 
 export const useTicketStore = create((set, get) => ({
   authTicket: null,
@@ -57,7 +56,7 @@ export const useTicketStore = create((set, get) => ({
     set({ isTicketLoading: true });
     try {
       const response = await axiosInstance.post("/ticket/add", ticketData);
-      set({ ticket: response.data });
+      // set({ ticket: response.data });
       toast.success("Ticket added successfully");
     } catch (error) {
       console.log("Error in addTicket: ", error);
@@ -150,7 +149,7 @@ export const useTicketStore = create((set, get) => ({
         },
       });
 
-      toast.success("Department Created Successfully");
+      toast.success("Window Created Successfully");
     } catch (error) {
       console.log("Error in addWindow", error);
       toast.error("Failed to add department");
@@ -159,7 +158,6 @@ export const useTicketStore = create((set, get) => ({
 
   updateTicketStatus: async (ticketId, status) => {
     try {
-      // const { allTickets } = get();
       const response = await axiosInstance.post("/ticket/status", {
         ticketId,
         status,
@@ -170,8 +168,6 @@ export const useTicketStore = create((set, get) => ({
       if (socket && socket.connected) {
         socket.emit("statusUpdated", !isStatusUpdated);
       }
-
-      toast.success("User Called!");
     } catch (error) {
       console.log("Error in addWindow", error);
       toast.error("Failed to update Ticket Status");
@@ -232,41 +228,58 @@ export const useTicketStore = create((set, get) => ({
     }
   },
 
-  releodTime: async () => {
-    const { ticket, intervalId } = get();
+  // releodTime: async () => {
+  //   const { ticket, intervalId } = get();
 
-    // Clear the existing interval if it exists
-    if (intervalId) {
-      clearInterval(intervalId);
+  //   // Clear the existing interval if it exists
+  //   if (intervalId) {
+  //     clearInterval(intervalId);
+  //   }
+
+  //   if (!ticket || !ticket.called_at) return;
+
+  //   // Convert called_at to a timestamp (milliseconds)
+  //   const calledAtTimestamp = new Date(ticket.called_at).getTime();
+
+  //   // Calculate remaining time
+  //   const remaining = Math.max(
+  //     120 - Math.floor((Date.now() - calledAtTimestamp) / 1000),
+  //     0
+  //   );
+
+  //   set({ remainingTime: remaining });
+
+  //   // Start countdown
+  //   const newIntervalId = setInterval(() => {
+  //     set((state) => {
+  //       const newTime = Math.max(state.remainingTime - 1, 0);
+  //       if (newTime === 0) {
+  //         clearInterval(newIntervalId);
+  //         get().updateTicketStatus(ticket.id, "void");
+  //       }
+  //       return { remainingTime: newTime };
+  //     });
+  //   }, 1000);
+
+  //   // Store the new interval ID in the state
+  //   set({ intervalId: newIntervalId });
+  // },
+
+  setDingSound: async (data) => {
+    try {
+      const parse = JSON.stringify(data);
+      await axiosInstance.get(`/ticket/call-sound/${parse}`);
+    } catch (error) {
+      console.log("Error from setting the sound ", error);
     }
+  },
 
-    if (!ticket || !ticket.called_at) return;
-
-    // Convert called_at to a timestamp (milliseconds)
-    const calledAtTimestamp = new Date(ticket.called_at).getTime();
-
-    // Calculate remaining time
-    const remaining = Math.max(
-      120 - Math.floor((Date.now() - calledAtTimestamp) / 1000),
-      0
-    );
-
-    set({ remainingTime: remaining });
-
-    // Start countdown
-    const newIntervalId = setInterval(() => {
-      set((state) => {
-        const newTime = Math.max(state.remainingTime - 1, 0);
-        if (newTime === 0) {
-          clearInterval(newIntervalId);
-          get().updateTicketStatus(ticket.id, "void");
-        }
-        return { remainingTime: newTime };
-      });
-    }, 1000);
-
-    // Store the new interval ID in the state
-    set({ intervalId: newIntervalId });
+  editTicket: async (data) => {
+    try {
+      await axiosInstance.get(`/ticket/edit/`, data);
+    } catch (error) {
+      console.log("Error from setting the sound ", error);
+    }
   },
 
   subsTicketVoidTimer: async () => {
@@ -274,6 +287,8 @@ export const useTicketStore = create((set, get) => ({
     if (!socket) return;
     socket.off("ticketCalled");
     socket.on("ticketCalled", (ticketData) => {
+      if (!ticketData.calledAt) return;
+
       const remaining = Math.max(
         120 - Math.floor((Date.now() - ticketData.calledAt) / 1000),
         0
@@ -292,7 +307,8 @@ export const useTicketStore = create((set, get) => ({
           const newTime = Math.max(state.remainingTime - 1, 0);
           if (newTime === 0) {
             clearInterval(interval);
-            get().updateTicketStatus(ticket.id, "void");
+            // get().updateTicketStatus(ticket.id, "void");
+            get().updateTicketStatus(state.calledTicket.ticketId, "void");
           }
           return { remainingTime: newTime };
         });
@@ -322,12 +338,59 @@ export const useTicketStore = create((set, get) => ({
     socket.off("getNewTicket");
   },
 
-  setBreakTime: async (data) => {
-    set({ isBreakTime: data });
+  setBreakTime: async () => {
+    try {
+      const response = await axiosInstance.get("/user/setBreakTime");
 
-    const socket = useAuthStore.getState().socket;
-    if (socket && socket.connected) {
-      socket.emit("breakTimeStatus", data);
+      const isBreak = !!response.data.result;
+
+      set({ isBreakTime: isBreak });
+
+      const socket = useAuthStore.getState().socket;
+      if (socket && socket.connected) {
+        socket.emit("breakTimeStatus", isBreak);
+      }
+    } catch (error) {
+      console.log("Error in get Other Data", error);
+    }
+  },
+
+  setCutOff: async () => {
+    try {
+      const response = await axiosInstance.get("/user/setCutOff");
+
+      const isOff = !!response.data.result;
+
+      set({ isCutOff: isOff });
+
+      const socket = useAuthStore.getState().socket;
+      if (socket && socket.connected) {
+        socket.emit("cutOffStatus", isOff);
+      }
+    } catch (error) {
+      console.log("Error in get Other Data", error);
+    }
+  },
+
+  getBreakTime: async () => {
+    try {
+      const response = await axiosInstance.get("/user/getBreakTime");
+
+      const data = !!response?.data.result;
+      set({ isBreakTime: data });
+    } catch (error) {
+      console.log("Error in get Other Data", error);
+    }
+  },
+
+  getCutOff: async () => {
+    try {
+      const response = await axiosInstance.get("/user/getCutOff");
+
+      const data = !!response?.data.result;
+      set({ isCutOff: data });
+    } catch (error) {
+      console.log("Error in get Other Data", error);
     }
   },
 
@@ -346,6 +409,23 @@ export const useTicketStore = create((set, get) => ({
     if (!socket) return;
 
     socket.off("updateBreakTime");
+  },
+
+  subscribeToCutOff: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+
+    socket.on("updateCutOffStatus", (data) => {
+      set({ isCutOff: data });
+    });
+  },
+
+  // Unsubscribe to prevent memory leaks
+  unsubscribeToCutOff: () => {
+    const socket = useAuthStore.getState().socket;
+    if (!socket) return;
+
+    socket.off("updateCutOffStatus");
   },
 
   subsToUpdateStatus: () => {

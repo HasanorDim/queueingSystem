@@ -146,7 +146,7 @@ export const getTableWindow = async (req, res) => {
     const queryUser = `
     SELECT users.id AS user_id, users.firstname, users.lastname, users.email,
           user_detailstb.id AS detail_id, user_detailstb.phone_number, user_detailstb.city, user_detailstb.age,
-          window_tickettb.id AS ticket_id, window_tickettb.ticket_number, window_tickettb.status, window_tickettb.service_type
+          window_tickettb.id AS ticket_id, window_tickettb.ticket_number, window_tickettb.status, window_tickettb.service_type, window_tickettb.priority_lvl AS priority
     FROM users
     INNER JOIN user_detailstb ON users.id = user_detailstb.user_id
     INNER JOIN window_tickettb ON users.id = window_tickettb.user_id
@@ -175,6 +175,7 @@ export const getTableWindow = async (req, res) => {
         ticket_number: row.ticket_number,
         service_type: row.service_type,
         status: row.status,
+        priority: row.priority,
       },
     }));
 
@@ -195,7 +196,7 @@ export const getTicketInQueueWindow = async (req, res) => {
     const queryUser = `
     SELECT users.id AS user_id, users.firstname, users.lastname, users.email,
           user_detailstb.id AS detail_id, user_detailstb.phone_number, user_detailstb.city, user_detailstb.age,
-          window_tickettb.id AS ticket_id, window_tickettb.ticket_number, window_tickettb.status, window_tickettb.service_type
+          window_tickettb.id AS ticket_id, window_tickettb.ticket_number, window_tickettb.status, window_tickettb.service_type, window_tickettb.priority_lvl AS priority
     FROM users
     INNER JOIN user_detailstb ON users.id = user_detailstb.user_id
     INNER JOIN window_tickettb ON users.id = window_tickettb.user_id
@@ -224,6 +225,7 @@ export const getTicketInQueueWindow = async (req, res) => {
         ticket_number: row.ticket_number,
         service_type: row.service_type,
         status: row.status,
+        priority: row.priority,
       },
     }));
 

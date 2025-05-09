@@ -23,7 +23,7 @@ import { allTicketsCount } from "../functions/Super.getFunction.js";
 dotenv.config();
 
 export const requestTicket = async (req, res) => {
-  const { service_type, status, windowId } = req.body;
+  const { service_type, status, windowId, priority } = req.body;
   const { id: userID } = req.user;
 
   const connection = await pool.getConnection();
@@ -46,8 +46,8 @@ export const requestTicket = async (req, res) => {
     const departmentId = department_id[0].department_id;
 
     const insertQuery = `
-      INSERT INTO window_tickettb (id, window_id, ticket_number, user_id, service_type, status, department_id)
-      SELECT ?, ?, COALESCE(MAX(ticket_number), 0) + 1, ?, ?, ?, ?
+      INSERT INTO window_tickettb (id, window_id, ticket_number, user_id, service_type, status, department_id, priority_lvl)
+      SELECT ?, ?, COALESCE(MAX(ticket_number), 0) + 1, ?, ?, ?, ?, ?
       FROM window_tickettb
       WHERE window_id = ?
         AND DATE(issued_at) = CURDATE();
@@ -60,6 +60,7 @@ export const requestTicket = async (req, res) => {
       service_type,
       status,
       departmentId,
+      priority,
       windowId,
     ]);
 
@@ -69,6 +70,8 @@ export const requestTicket = async (req, res) => {
     const data = rows[0];
 
     io.emit("getNewTicket", data);
+
+    console.log("getNewTicket");
 
     // Generate a JWT with department data
     const token = jwt.sign(
@@ -286,6 +289,7 @@ export const getAllTickets = async (req, res) => {
     //   AND wt.status != 'completed'
     //   ;
     // `;
+
     const query = `
       SELECT wt.*, sw.*, u.firstname, u.lastname
       FROM window_tickettb wt
@@ -293,7 +297,6 @@ export const getAllTickets = async (req, res) => {
       LEFT JOIN users u ON wt.user_id = u.id
       WHERE sw.department_id = ?
       AND DATE(wt.issued_at) = CURDATE()
-      AND wt.status != 'completed';
     `;
 
     const [rows] = await connection.execute(query, [user.department_id]);
@@ -350,7 +353,6 @@ export const ticketStatus = async (req, res) => {
       if (result.affectedRows === 0) {
         throw new Error("Ticket not found or no changes made.");
       }
-
       console.log(`Ticket SLA status updated: ${metSla ? "Met" : "Not Met"}`);
     } else {
       // Update ticket status
@@ -403,7 +405,36 @@ export const ticketStatus = async (req, res) => {
         status: row.status,
       },
     }));
+
     broadcastTableWindowUpdate(formattedUsers);
+
+    if (status === "In Progress") {
+      const selectQuery1 = `SELECT * FROM window_tickettb WHERE id = ?`;
+      const [ticket1] = await connection.execute(selectQuery1, [ticketId]);
+
+      const data = ticket1[0];
+
+      const selectLowestWaitingQuery = `
+        SELECT ticket_number
+        FROM window_tickettb
+        WHERE status = 'waiting' 
+          AND DATE(issued_at) = CURDATE()
+          AND window_id = ?
+        ORDER BY ticket_number ASC
+        LIMIT 1
+      `;
+      const [lowestWaitingTicket] = await connection.execute(
+        selectLowestWaitingQuery,
+        [data.window_id] // <-- pass it as an array
+      );
+
+      const lowestWaitingNumber = lowestWaitingTicket[0]?.ticket_number ?? null;
+      io.emit("makeDingSound", {
+        ...data,
+        lowestWaiting: lowestWaitingNumber,
+      });
+    }
+
     await connection.commit();
     return res
       .status(200)
@@ -424,7 +455,7 @@ export const nextWindow = async (req, res) => {
   await connection.beginTransaction();
 
   try {
-    const { window, user } = req.body;
+    const { window, user, priority } = req.body;
 
     const ticketId = uuidv4();
 
@@ -442,8 +473,8 @@ export const nextWindow = async (req, res) => {
     const departmentId = department_id[0].department_id;
 
     const insertQuery = `
-      INSERT INTO window_tickettb (id, window_id, ticket_number, user_id, service_type, status, department_id)
-      SELECT ?, ?, COALESCE(MAX(ticket_number), 0) + 1, ?, ?, ?, ?
+      INSERT INTO window_tickettb (id, window_id, ticket_number, user_id, service_type, status, department_id, priority_lvl)
+      SELECT ?, ?, COALESCE(MAX(ticket_number), 0) + 1, ?, ?, ?, ?, ?
       FROM window_tickettb
       WHERE window_id = ?
         AND DATE(issued_at) = CURDATE();
@@ -456,6 +487,7 @@ export const nextWindow = async (req, res) => {
       window.service_type,
       "waiting",
       departmentId,
+      priority,
       window.id,
     ]);
 
@@ -472,6 +504,7 @@ export const nextWindow = async (req, res) => {
 };
 
 export const notPresent = async (req, res) => {
+  console.log("notPresent");
   const connection = await pool.getConnection();
   await connection.beginTransaction();
 
@@ -558,5 +591,45 @@ export const getFunctionSuper = async (req, res) => {
   } catch (error) {
     console.error("Error updating ticket status:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const calledSound = async (req, res) => {
+  const { ticketData } = req.params; // Extract the string from params
+  const dataParse = JSON.parse(ticketData);
+
+  const connection = await pool.getConnection();
+  await connection.beginTransaction();
+  try {
+    const selectQuery1 = `SELECT * FROM window_tickettb WHERE id = ?`;
+    const [ticket1] = await connection.execute(selectQuery1, [
+      dataParse?.window?.id,
+    ]);
+    const data = ticket1[0];
+
+    const selectLowestWaitingQuery = `
+      SELECT ticket_number
+      FROM window_tickettb
+      WHERE status = 'waiting' 
+        AND DATE(issued_at) = CURDATE()
+        AND window_id = ?
+      ORDER BY ticket_number ASC
+      LIMIT 1
+    `;
+    const [lowestWaitingTicket] = await connection.execute(
+      selectLowestWaitingQuery,
+      [data.window_id]
+    );
+
+    const lowestWaitingNumber = lowestWaitingTicket[0]?.ticket_number ?? null;
+    io.emit("makeDingSound", { ...data, lowestWaiting: lowestWaitingNumber });
+    await connection.commit();
+    res.status(204).json();
+  } catch (error) {
+    await connection.rollback();
+    console.error("Error updating ticket status:", error);
+    res.status(500).json({ message: "Server error" });
+  } finally {
+    connection.release();
   }
 };

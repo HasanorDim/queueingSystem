@@ -31,6 +31,10 @@ io.on("connection", (socket) => {
     io.emit("updateBreakTime", status); // Broadcast to all clients
   });
 
+  socket.on("cutOffStatus", (status) => {
+    io.emit("updateCutOffStatus", status); // Broadcast to all clients
+  });
+
   socket.on("statusUpdated", (status) => {
     io.emit("updateStatus", status);
   });

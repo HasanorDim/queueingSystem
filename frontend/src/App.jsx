@@ -141,17 +141,43 @@ function App() {
 
         {/*  */}
 
-        <Route
+        {/* <Route
           path="/userpage"
           element={
             authUser?.role === "client" ? (
               ticket?.status === "waiting" ||
+              ticket?.status === "completed" ||
               ticket?.status === "In Progress" ||
               ticket?.status === "On Hold" ? (
                 <Navigate to="/user/ticket" />
               ) : (
                 <User />
               )
+            ) : (
+              <Navigate to="/dashboard" />
+            )
+          }
+        /> */}
+        <Route
+          path="/userpage"
+          element={
+            authUser?.role === "client" ? (
+              ticket ? (
+                <Navigate to="/user/ticket" />
+              ) : (
+                <User />
+              )
+            ) : (
+              <Navigate to="/dashboard" />
+            )
+          }
+        />
+
+        <Route
+          path="/scanQR"
+          element={
+            authUser?.role === "client" ? (
+              <User />
             ) : (
               <Navigate to="/dashboard" />
             )

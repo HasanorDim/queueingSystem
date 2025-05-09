@@ -19,10 +19,10 @@ const Cards = () => {
   const { departmentCount, getDepartmenthelperfunctions, referenceCount } =
     useDepartmentStore();
   const { userCount, getUsersCounts } = useUserStore();
-  const { totalTickets, setTotalTicket } = useTicketStore();
+  const { setTotalTicket, totalTicketsSuper } = useTicketStore();
   const { getUsers, users } = useUserStore();
-  const [timeFilter, setTimeFilter] = useState("all"); // 'all', 'today', 'week', 'month'
-  const [usertimeFilter, setUserTimeFilter] = useState("all"); // 'all', 'today', 'week', 'month'
+  const [timeFilter, setTimeFilter] = useState("all");
+  const [usertimeFilter, setUserTimeFilter] = useState("all");
 
   useEffect(() => {
     setTotalTicket();
@@ -98,11 +98,11 @@ const Cards = () => {
             <h3 className="text-2xl font-bold text-gray-800 mt-1">
               {(() => {
                 if (timeFilter === "all") {
-                  return totalTickets?.all?.count ?? 0;
+                  return totalTicketsSuper?.all?.count ?? 0;
                 } else if (timeFilter === "week") {
-                  return totalTickets?.week?.count ?? 0;
+                  return totalTicketsSuper?.week?.count ?? 0;
                 } else if (timeFilter === "month") {
-                  return totalTickets?.month?.count ?? 0;
+                  return totalTicketsSuper?.month?.count ?? 0;
                 } else {
                   return 0;
                 }
@@ -114,7 +114,7 @@ const Cards = () => {
         <div className="mt-4 flex items-center justify-between">
           <span className="text-xs font-medium text-blue-500 bg-blue-50 px-2 py-1 rounded-full">
             <FiClock className="inline mr-1" />
-            {totalTickets?.today?.count ?? 0} processed today
+            {totalTicketsSuper?.today?.count ?? 0} processed today
           </span>
 
           <div className="dropdown dropdown-hover dropdown-end">

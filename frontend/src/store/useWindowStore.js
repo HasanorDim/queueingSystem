@@ -61,6 +61,7 @@ export const useWindowStore = create((set, get) => ({
             ticket_number: row.window.ticket_number,
             service_type: row.window.service_type,
             status: row.window.status,
+            priority: row.window.priority,
           },
         }))
         .filter((x) => x.window.status === "In Progress");

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useDepartmentStore } from "../../store/useDepartmentStore";
-import { useWindowStore } from "../../store/useWindowStore";
 import { useTicketStore } from "../../store/useTicketStore";
 
 const User = () => {

@@ -225,6 +225,7 @@ export const userInThisMonth = async () => {
           WHERE MONTH(created_at) = MONTH(CURRENT_DATE())
             AND YEAR(created_at) = YEAR(CURRENT_DATE())
             AND role = 'client'
+            LIMIT 5
         `;
 
     const [rows] = await connection.execute(query);

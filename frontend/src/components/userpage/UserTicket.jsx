@@ -60,7 +60,7 @@ const UserTicket = () => {
               </h1>
 
               <div className="text-gray-600 text-sm mt-4">Queue Number</div>
-              <div className="text-5xl text-blue-600 font-extrabold">
+              <div className="text-9xl text-blue-600 font-extrabold">
                 {ticket.ticket_number}
               </div>
 

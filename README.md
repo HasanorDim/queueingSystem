@@ -1,5 +1,6 @@
 Software Design Document
 Queue Management System
+Developer: Hasanor Dimasimapan
 1. Introduction
 1.1 Purpose
 The purpose of this document is to define the software requirements for a Queueing Management System that enables organizations to manage customer flow efficiently through digital ticketing and real-time dashboards.
